@@ -115,6 +115,7 @@ Perl stuff up to 3.1 Java stuff the same
 
 7/10/01 
 Perl & Java both to 4.0
+Date: 994752000
 4.0	Authorization additions - now a shared secret between server &
 		client can exist to allow the server to authorize
 		remote clients.  Hopefully this will open the door to
@@ -130,3 +131,20 @@ Perl & Java both to 4.0
 		the 'get_exception' and 'get_stack_trace' methods.  See the
 		perldoc.  Before all you could get was just the String-ified
 		message ('getMessage()') of the Exception.
+
+Perl 4.1
+Date: 996440427 Sun Jul 29 14:00:27 2001
+File: perl/Java.pm
+  2001/07/20 22:39:44
+    Allow blank lines for callbacks
+File: perl/Java.pm
+  2001/07/17 15:50:25
+    Made sure exceptions are stored in the 'java' object & not the
+    instantiated object.  added some convenience functions for this too
+File: perl/Java.pm
+  2001/07/13 14:59:51
+    Put eval'ed callbacks in package main by default like it should have been
+    in the first place
+File: perl/Java.pm
+  2001/07/10 18:47:36
+    Changed '\r' to more portable '\015'

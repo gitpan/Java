@@ -1,6 +1,20 @@
-# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.2 2001/07/09 23:05:51 mark Exp $
-# $Revision: 1.2 $
+# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.6 2001/07/20 22:39:44 mark Exp $
+# $Revision: 1.6 $
 # $Log: Java.pm,v $
+# Revision 1.6  2001/07/20 22:39:44  mark
+# Allow blank lines for callbacks
+#
+# Revision 1.5  2001/07/17 15:50:25  mark
+# Made sure exceptions are stored in the 'java' object & not the
+# instantiated object.  added some convenience functions for this too
+#
+# Revision 1.4  2001/07/13 14:59:51  mark
+# Put eval'ed callbacks in package main by default like it should have been
+# in the first place
+#
+# Revision 1.3  2001/07/10 18:47:36  mark
+# Changed '\r' to more portable '\015'
+#
 # Revision 1.2  2001/07/09 23:05:51  mark
 # Clean up
 #
@@ -40,7 +54,7 @@ use vars qw ($AUTOLOAD @ISA $VERSION);
 require Exporter;
 @ISA = qw(Exporter);
 
-$VERSION = '4.0';
+$VERSION = '4.1';
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -231,15 +245,15 @@ sub set_field
 	my $line;
 
 	# Figure out what we're dealing with...
-	if ($self->{java})
-	{
-		# instantiated object
-		$line = "SET $self->{name}#$index(@args)";
-	}
-	else
+	if ($self->_is_java)
 	{
 		# static object
 		$line = "SET $_[1]#$_[2](@_[3..@_])";
+	}
+	else
+	{
+		# instantiated object
+		$line = "SET $self->{name}#$index(@args)";
 	}
 	
 	my $resp = $self->send_command_and_get_response($line);
@@ -267,7 +281,6 @@ sub get_length
 sub new_java_object
 {
 	my($self, $line) = @_;
-	my $java;
 	chomp $line;
 
 	# NULL!
@@ -277,15 +290,7 @@ sub new_java_object
 	# If we're creating this object from another one
 	#	i.e. from a method call
 	# pull the 'java' portion outta there...
-	if ($self->{java})
-	{
-		$java = $self->{java};
-	}
-	else
-	{
-		# A 'create_object' call
-		$java = $self;
-	}
+	my $java = $self->_get_in_java('java');
 
 	#print STDERR "Created Java Object $line\n";
 	my $obj = (bless { name => $line, java => $java }, ref $self);
@@ -312,34 +317,20 @@ sub new_java_object
 sub get_socket
 {
 	my ($self) = shift;
-	if ($self->{java})
-	{
-		return $self->{java}->{socket};
-	}
-	else
-	{
-		return $self->{socket};
-	}
+	$self->_get_in_java('socket');
 }
 
 # Gets the incoming event socket
 sub get_event_socket
 {
 	my ($self) = shift;
-	if ($self->{java})
-	{
-		return $self->{java}->{event_socket};
-	}
-	else
-	{
-		return $self->{event_socket};
-	}
+	$self->_get_in_java('event_socket');
 }
 
 sub send_line
 {
 	my($self,$line) = @_;
-	return if (!$self || !$line);
+	return if (!$self || !defined($line));
 	$self->get_socket->print("$line\n\n");
 }
 	
@@ -358,7 +349,7 @@ sub send_command_and_get_response
 			{
 				croak("Error receiving response");
 			}
-			$line =~ s/\r//g;	# clean up input from Winblows
+			$line =~ s/\015//g;	# clean up input from Winblows
 
 			# Check for end of response
 			last if ($line =~ /^$/);
@@ -374,8 +365,9 @@ sub send_command_and_get_response
 			# Peel off Exception object if it's there
 			if ($resp =~ s/%%%(.*)$//)
 			{
-				# & keep track of it
-				$self->{last_exception} = $self->new_java_object($1);
+				# & keep track of it in the Java object
+				my $ex_obj = $self->new_java_object($1);
+				$self->_set_in_java('last_exception',$ex_obj);
 			}
 			croak($resp);
 		}
@@ -392,7 +384,7 @@ sub send_command_and_get_response
 sub get_exception
 {
 	my($self) = @_;
-	$self->{last_exception};
+	$self->_get_in_java('last_exception');
 }
 
 #
@@ -412,7 +404,7 @@ sub get_stack_trace
         $exception_object->printStackTrace($print_writer);
 
 	my $line = $string_writer->toString->get_value;
-	$line =~ s/\r//g;	# Get rid of Windows/Krapple nastiness
+	$line =~ s/\015//g;	# Get rid of Windows/Krapple nastiness
 	split(/\n/, $line);
 }
 
@@ -423,15 +415,15 @@ sub get_field
 {
 	my($self) = shift;
 	my $resp;
-	if ($self->{java})
-	{
-		# Get instantiated field
-		$resp = $self->send_command_and_get_response("GET $self->{name}#$_[0]");
-	}
-	else
+	if ($self->_is_java)
 	{
 		# Get static field
 		$resp = $self->send_command_and_get_response("GET $_[0]#$_[1]");
+	}
+	else
+	{
+		# Get instantiated field
+		$resp = $self->send_command_and_get_response("GET $self->{name}#$_[0]");
 	}
 
 	# Objectify it
@@ -442,15 +434,15 @@ sub get_field
 sub get_value
 {
 	my($self) = shift;
-	if ($self->{java})
-	{
-		# Get instantiated field value
-		$self->send_command_and_get_response("VAL $self->{name}");
-	}
-	else
+	if ($self->_is_java)
 	{
 		# Get static value
 		$self->send_command_and_get_response("VAL $_[0]");
+	}
+	else
+	{
+		# Get instantiated field value
+		$self->send_command_and_get_response("VAL $self->{name}");
 	}
 }
 
@@ -593,17 +585,17 @@ sub DESTROY
 {
 	my($self) = shift;
 	#print STDERR "DES: ",$self->{name},"\n";
-	if ($self->{java})
-	{
-		# Plain old scalar - java object
-		# Tell JavaServer we're done w/it...
-		my $resp = $self->{java}->send_command_and_get_response("BYE $self->{name}");
-	}
-	else
+	if ($self->_is_java)
 	{
 		# Entire Java hash going out of scope
 		$self->{socket}->close() if ($self->{socket});
 	        $self->{event_socket}->close() if ($self->{event_socket});
+	}
+	else
+	{
+		# Plain old scalar - java object
+		# Tell JavaServer we're done w/it...
+		my $resp = $self->{java}->send_command_and_get_response("BYE $self->{name}");
 	}
 }
 
@@ -617,7 +609,7 @@ sub AUTOLOAD
 	my @goo;
 
 	# it's a static call UNLESS $self is an instantiated class
-	if ($func =~ /_/ && !$self->{java})
+	if ($func =~ /_/ && $self->_is_java)
 	{
 		# called like $java->java_lang_Class("forName","java.lang.String");
 		# Pull out object name
@@ -667,8 +659,9 @@ sub base_call
 	# Handle a callback request
 	while ($resp =~ s/^CALLBACK //)
 	{
-		# eval it 
-		my $ret = eval("$resp");
+		# eval it  - put it in package main if they don't
+		#	specify one themselves
+		my $ret = eval("package main;$resp");
 		if ($@)
 		{
 			chomp $@;
@@ -730,7 +723,7 @@ sub decipher_event
 	my($self,$line) = @_;
 
 	chomp $line;
-	$line =~ s/\r//g;	# Clean up input from Winblows...
+	$line =~ s/\015//g;	# Clean up input from Winblows...
 	
 	# figure out who wanted this event
 	$line =~ s/^EVE:\s+//;
@@ -760,6 +753,37 @@ sub get_event_FH
 	$self->get_event_socket;
 }
 	
+sub _get_in_java
+{
+	my($self,$what) = @_;
+	if ($self->_is_java)
+	{
+		return $self->{$what}
+	}
+	else
+	{
+		return $self->{java}->{$what}
+	}
+}
+
+sub _set_in_java
+{
+	my($self,$what,$value) = @_;
+	if ($self->_is_java)
+	{
+		return $self->{$what} = $value
+	}
+	else
+	{
+		$self->{java}->{$what} = $value;
+	}
+}
+
+sub _is_java
+{
+	shift->{java};
+}
+
 # Autoload methods go after =cut, and are processed by the autosplit program.
 
 1;
