@@ -1,0 +1,826 @@
+.rn '' }`
+''' $RCSfile$$Revision$$Date$
+'''
+''' $Log$
+'''
+.de Sh
+.br
+.if t .Sp
+.ne 5
+.PP
+\fB\\$1\fR
+.PP
+..
+.de Sp
+.if t .sp .5v
+.if n .sp
+..
+.de Ip
+.br
+.ie \\n(.$>=3 .ne \\$3
+.el .ne 3
+.IP "\\$1" \\$2
+..
+.de Vb
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve
+.ft R
+
+.fi
+..
+'''
+'''
+'''     Set up \*(-- to give an unbreakable dash;
+'''     string Tr holds user defined translation string.
+'''     Bell System Logo is used as a dummy character.
+'''
+.tr \(*W-|\(bv\*(Tr
+.ie n \{\
+.ds -- \(*W-
+.ds PI pi
+.if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\" diablo 12 pitch
+.ds L" ""
+.ds R" ""
+'''   \*(M", \*(S", \*(N" and \*(T" are the equivalent of
+'''   \*(L" and \*(R", except that they are used on ".xx" lines,
+'''   such as .IP and .SH, which do another additional levels of
+'''   double-quote interpretation
+.ds M" """
+.ds S" """
+.ds N" """""
+.ds T" """""
+.ds L' '
+.ds R' '
+.ds M' '
+.ds S' '
+.ds N' '
+.ds T' '
+'br\}
+.el\{\
+.ds -- \(em\|
+.tr \*(Tr
+.ds L" ``
+.ds R" ''
+.ds M" ``
+.ds S" ''
+.ds N" ``
+.ds T" ''
+.ds L' `
+.ds R' '
+.ds M' `
+.ds S' '
+.ds N' `
+.ds T' '
+.ds PI \(*p
+'br\}
+.\"	If the F register is turned on, we'll generate
+.\"	index entries out stderr for the following things:
+.\"		TH	Title 
+.\"		SH	Header
+.\"		Sh	Subsection 
+.\"		Ip	Item
+.\"		X<>	Xref  (embedded
+.\"	Of course, you have to process the output yourself
+.\"	in some meaninful fashion.
+.if \nF \{
+.de IX
+.tm Index:\\$1\t\\n%\t"\\$2"
+..
+.nr % 0
+.rr F
+.\}
+.TH Java 3 "perl 5.005, patch 03" "21/Mar/2001" "User Contributed Perl Documentation"
+.UC
+.if n .hy 0
+.if n .na
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.de CQ          \" put $1 in typewriter font
+.ft CW
+'if n "\c
+'if t \\&\\$1\c
+'if n \\&\\$1\c
+'if n \&"
+\\&\\$2 \\$3 \\$4 \\$5 \\$6 \\$7
+'.ft R
+..
+.\" @(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2
+.	\" AM - accent mark definitions
+.bd B 3
+.	\" fudge factors for nroff and troff
+.if n \{\
+.	ds #H 0
+.	ds #V .8m
+.	ds #F .3m
+.	ds #[ \f1
+.	ds #] \fP
+.\}
+.if t \{\
+.	ds #H ((1u-(\\\\n(.fu%2u))*.13m)
+.	ds #V .6m
+.	ds #F 0
+.	ds #[ \&
+.	ds #] \&
+.\}
+.	\" simple accents for nroff and troff
+.if n \{\
+.	ds ' \&
+.	ds ` \&
+.	ds ^ \&
+.	ds , \&
+.	ds ~ ~
+.	ds ? ?
+.	ds ! !
+.	ds /
+.	ds q
+.\}
+.if t \{\
+.	ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
+.	ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
+.	ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
+.	ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
+.	ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
+.	ds ? \s-2c\h'-\w'c'u*7/10'\u\h'\*(#H'\zi\d\s+2\h'\w'c'u*8/10'
+.	ds ! \s-2\(or\s+2\h'-\w'\(or'u'\v'-.8m'.\v'.8m'
+.	ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
+.	ds q o\h'-\w'o'u*8/10'\s-4\v'.4m'\z\(*i\v'-.4m'\s+4\h'\w'o'u*8/10'
+.\}
+.	\" troff and (daisy-wheel) nroff accents
+.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
+.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
+.ds v \\k:\h'-(\\n(.wu*9/10-\*(#H)'\v'-\*(#V'\*(#[\s-4v\s0\v'\*(#V'\h'|\\n:u'\*(#]
+.ds _ \\k:\h'-(\\n(.wu*9/10-\*(#H+(\*(#F*2/3))'\v'-.4m'\z\(hy\v'.4m'\h'|\\n:u'
+.ds . \\k:\h'-(\\n(.wu*8/10)'\v'\*(#V*4/10'\z.\v'-\*(#V*4/10'\h'|\\n:u'
+.ds 3 \*(#[\v'.2m'\s-2\&3\s0\v'-.2m'\*(#]
+.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
+.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
+.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
+.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
+.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
+.ds ae a\h'-(\w'a'u*4/10)'e
+.ds Ae A\h'-(\w'A'u*4/10)'E
+.ds oe o\h'-(\w'o'u*4/10)'e
+.ds Oe O\h'-(\w'O'u*4/10)'E
+.	\" corrections for vroff
+.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
+.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
+.	\" for low resolution devices (crt and lpr)
+.if \n(.H>23 .if \n(.V>19 \
+\{\
+.	ds : e
+.	ds 8 ss
+.	ds v \h'-1'\o'\(aa\(ga'
+.	ds _ \h'-1'^
+.	ds . \h'-1'.
+.	ds 3 3
+.	ds o a
+.	ds d- d\h'-1'\(ga
+.	ds D- D\h'-1'\(hy
+.	ds th \o'bp'
+.	ds Th \o'LP'
+.	ds ae ae
+.	ds Ae AE
+.	ds oe oe
+.	ds Oe OE
+.\}
+.rm #[ #] #H #V #F C
+.SH "NAME"
+Java \- Perl extension for accessing a JVM remotely or locally
+.SH "SYNOPSIS"
+.PP
+.Vb 11
+\&  use Java;
+\&  $java = new Java;
+\&  $frame = $java->create_object("java.awt.Frame","Frame's Title");
+\&  $frame->setSize(400,400);
+\&  $frame->show();
+\&  $java->do_event($frame,"addWindowListener",\e&event_handler);
+\&  
+\&  $array = $java->create_array("java.lang.String",5);
+\&  // Set array element 3 to "Java is lame"
+\&  $array->set_field(3,"Java is lame");
+\&  $element = $array->get_field(3)->get_value();
+.Ve
+.Vb 3
+\&  $button = $java->create_object("java.awt.Button","Push Me");
+\&  // Listen for 'Action' events from $button object
+\&  $java->do_event($button,"addActionListener",\e&event_handler);
+.Ve
+.Vb 6
+\&  // Loop & wait mode
+\&  while(1)
+\&  {
+\&       my $continue = $java->go;
+\&       last if (!defined $continue);
+\&  }
+.Ve
+.Vb 10
+\&  // Got an event!
+\&  sub event_handler
+\&  {
+\&        my($object_that_caused_event,$event_object) = @_;
+\&        if ($object_that_caused_event->same($button))
+\&        {
+\&                // From $button!
+\&                print "You pushed my button!!\en";
+\&        }
+\&  }
+.Ve
+.SH "DESCRIPTION"
+This module allows you to talk to a JVM on a local or remote machine.  You
+can create objects, call functions, access fields, deal with arrays, get
+events & all the nonsense you can do in Java \- from Perl!
+.Sh "Starting a \s-1JVM\s0 server"
+First you must run \*(L'JavaServer\*(R' on the machine to which you will make
+connections.  Simply do a \*(L'java JavaServer\*(R' to start the server.  By default
+it will start listening on port 2000.  Make sure the \*(L'JavaServer.jar\*(R' is in your classpath \- also make sure the Swing stuff (\s-1JFC\s0 if you prefer) is in your classpath as well if you want to use Swing stuff (note this does not apply to \s-1JVM\s0 1.2+).
+.Sh "Creating the root Java object"
+You connect to a remote (or local) \s-1JVM\s0 when you create a new Java instance.
+The new call accepts a hash with the following keys:
+.PP
+.Vb 12
+\&        host => hostname of remote machine to connect to
+\&                        default is 'localhost'
+\&        port => port the JVM is listening on (JavaServer)
+\&                        default is 2000
+\&        event_port => port that the remote JVM will send events to
+\&                        default is 2001
+\&        use_tied_arrays => tells Java.pm whether to use 'tieds' Java arrays
+\&                        by default or not - see JavaArray.pm for more info
+\&                        on this exciting new feature!
+\&                        If set to true all array references will be 'tied' to
+\&                        'JavaArrays' allowing a more intuitive interface to
+\&                        them.  See the section on Arrays for more info also.
+.Ve
+For example:
+.PP
+.Vb 2
+\&        $java = new Java(host => "java.zzo.com", event_port => 4032);
+\&        $java2 = new Java(port => 8032, use_tied_arrays => 1);
+.Ve
+You can have any number of java \*(L'environments\*(R' in a Perl program.
+.PP
+Also if you \*(L'use strict\*(R' you must do a \*(L'no struct \*(L'subs'' \*(L'cuz all Java method calls are \s-1AUTOLOAD\s0'ed \- sorry.
+.Sh "Creating java primitives"
+The Java.pm module will treat all integers encountered in parameter
+lists as integer and strings as java Strings.  All other primitive types
+must be suffixed with an identifier so Java.pm knows what primitive Java
+type to convert it to \- for instance boolean types are tagged like:
+	\*(L"true:b\*(R" or \*(L"false:b\*(R"
+.PP
+Here's a complete list of supported Java primitives:
+.PP
+.Vb 13
+\&        Perl String Value  -> (converted to) -> Java Primitive
+\&        -----------------                       --------------
+\&        2344                                    int
+\&        "23:short"                              short
+\&        "23:byte"                               byte
+\&        "a:char"                                char
+\&        "23445:long"                            long
+\&        "3.42:float"                            float
+\&        "3.14159:double"                        double
+\&        "true:b" or "false:b"                   boolean
+\&        "Anything else"                         String
+\&                or
+\&        "Anything else:string"                  String
+.Ve
+So... if you need to use an integer as a String say \*(L"343:string\*(R".
+.Sh "Localization and String encoding"
+Quick note on String encodings, you can specify that your strings are encoded
+in a specific format using the \*(L":string_<\s-1ENCODING\s0>\*(R" syntax like:
+.PP
+.Vb 1
+\&        my $label = $java->create_object("java.awt.Label","Label:string_UTF8");
+.Ve
+This specifies that this String uses Unicode encoding.  See 
+http://www.javasoft.com/products/jdk/1.1/docs/guide/intl/encoding.doc.html
+for the complete list of valid Java String encodings.
+.Sh "Creating java objects"
+Once you've connected to a \s-1JVM\s0 via the \*(L'new Java\*(R' call you can start creating
+Java objects.  This is accomplished via the \*(L'create_object\*(R' function.
+The first argument must be the \*(L'fully-qualified'/'full path\*(R' of the Java object
+you want to create \- like \*(L'java.lang.String\*(R' or \*(L'java.awt.Frame\*(R'.  
+The remaining arguments are passed to that object's constructor.
+.PP
+For example:
+.PP
+.Vb 3
+\&        my $frame = $java->create_object("java.awt.Frame","Frame Title");
+\&        my $dialog = $java->create_object("java.awt.Dialog",$frame,
+\&                        "Dialog Title","true:b");
+.Ve
+Note the use of \*(L"true:b\*(R" in the constructor to tell Java.pm that that 
+value should be a \*(L'true\*(R' Java boolean value.
+.PP
+In these cases a \*(L'java.awt.Frame\*(R' takes a String as the lone parameter, 
+whereas a \*(L'java.awt.Dialog\*(R' takes a Frame, a String, and a boolean value 
+in its constructor.
+.Sh "Calling java methods"
+You can make both static and instantiated method calls on java objects.
+The parameter lists work exactly like constructor parameter lists \- if you
+want to pass a java primitive anything other than integers or Strings need
+to be tagged accordingly.  All function calls that return something return
+a java object \- so even if the java function returns an \*(L'int\*(R' it is returned
+to perl as a \*(L'java.lang.Integer\*(R'.  To get the value of that Integer you must
+use the \*(L'get_value\*(R' function.
+The syntax is exactly what you'd expect (I hope!).
+.PP
+For example:
+.PP
+.Vb 2
+\&        $frame->setSize(200,500);
+\&        $frame->show();  (or $frame->show)
+.Ve
+Note functions that don't take any parameters don't need the parentheses!
+.PP
+.Vb 2
+\&        
+\&To call static functions the syntax is slightly different.
+.Ve
+For example:
+.PP
+To call the static method \*(L'forName\*(R' in the object \*(L'java.lang.Class\*(R'
+it looks like this:
+.PP
+.Vb 1
+\&        my $class = $java->java_lang_Class("forName","Test");
+.Ve
+Note you use the \*(L'$java\*(R' object returned from the call to \*(L'new Java\*(R'
+to access static methods \- the static object must be fully-qualified
+separated by \*(L'_'s instead of \*(L'.'s.  And finally the first parameter
+is the name of the static function followed by any parameters to it.
+.PP
+If your static class is \s-1NOT\s0 in a package you \s-1MUST\s0 use the \*(L'static_call\*(R'
+function like:
+.PP
+.Vb 1
+\&        my $return_value = $java->static_call("MyStaticClass","<function_name>",@params);
+.Ve
+.Sh "Getting and Setting java object fields"
+You can get and set individual fields in java objects (static or instantiated) 
+using the \*(L'get_field\*(R' and \*(L'set_field\*(R' methods.  All \*(L'get_field\*(R' calls return
+java objects just like calling java functions.  You must use the \*(L'get_value\*(R'
+function to \*(L'unwrap\*(R' primitive types to their actual values.
+.PP
+For example:
+.PP
+Get a static field 
+.PP
+.Vb 2
+\&        my $win_act = $java->get_field("java.awt.event.WindowEvent",
+\&                                                "WINDOW_ACTIVATED");
+.Ve
+Note the first parameter must be the fully qualified java object name 
+and the second parameter is the static field.
+.PP
+Get an instantiated field
+.PP
+.Vb 2
+\&        my $obj = $java->create_object("java.my.Object");
+\&        my $field = $obj->get_field("my_field");
+.Ve
+Similarly to set a field another parameter is added to the \*(L'set_field\*(R' call
+with the object that the specified field is to be set to:
+	
+Set a static field
+.PP
+.Vb 1
+\&        $java->set_field("java.static.Object","field_name",$obj);
+.Ve
+Set an instantiated field
+.PP
+.Vb 1
+\&        $obj->set_field("integer_field_name",400);
+.Ve
+.Sh "Exceptions"
+Currently Java.pm will \*(L'croak\*(R' when an Exception is encountered in JavaServer.
+So the way to deal with them is to enclose your Java expression that might
+throw an exception in an \*(L'eval\*(R' block & then check the $@ variable to see
+if an Exception was indeed thrown.  You then need to parse the $@ variable
+to see exactly what Exception was thrown.  Currently the format of the $@
+string is: 
+.PP
+.Vb 1
+\&        ERROR: java.lang.Exception: some.java.Exception: <more info> at $0 line XX
+.Ve
+Note the \*(L'<more info>\*(R' part is the result of the \fIgetMessage()\fR function
+of that Exception.  Everything after that is the stuff put in there by croak;
+the filename & line number of your Perl program.
+So here's what an Exception handler can look like:
+.PP
+.Vb 10
+\&        my $I;
+\&        eval
+\&        {
+\&                $I = $java->java_lang_Integer("parseInt","$some_string:string");
+\&        };
+\&        if ($@)
+\&        {
+\&                # An exception was thrown!!
+\&                $@ =~ s/ERROR: //;      # Gets rid of 'ERROR: '
+\&                $@ =~ s/at $0.*$//;     # Gets rid of 'croak' generated stuff
+.Ve
+.Vb 2
+\&                # Print just the Java stuff
+\&                print "$@\en";
+.Ve
+.Vb 1
+\&        }
+.Ve
+So in this example if the scalar \f(CW$some_string\fR did \s-1NOT\s0 contain a parsable
+integer \- say \*(L'dd\*(R' \- the printed error message would be:
+.PP
+.Vb 1
+\&        java.lang.Exception: java.lang.NumberFormatException: dd 
+.Ve
+.Sh "Comparing Java objects"
+The \*(L'==\*(R' operator is now overloaded to provide this functionality!  Woohoo!
+So you can now say stuff like:
+.PP
+.Vb 8
+\&        if ($object1 == $object2)
+\&        {
+\&                #They're the same!
+\&        }
+\&        else
+\&        {
+\&                #Not!
+\&        }
+.Ve
+Here's the old (other) way of doing the exact same thing:
+.PP
+You can see if two references to java objects actually point to the same
+object by using the \*(L'same\*(R' function like:
+.PP
+.Vb 8
+\&        if ($object1->same($object2))
+\&        {
+\&                # They're the same!
+\&        }
+\&        else
+\&        {
+\&                # Nope, not the same
+\&        }
+.Ve
+You'll see why this is useful in the next section \*(L'Events\*(R'.
+.Sh "Events"
+Events are passed from the remote \s-1JVM\s0 to Perl5 via a separate event port.
+To enable events on an object use the \*(L'do_event\*(R' function.  Your callback
+function will receive the object that caused the event as its first
+parameter and the event object itself as the second parameter.  Here's where
+ya wanna use the \*(L'same\*(R' function (or the new overloaded \*(L'==\*(R' operator)
+to see what object caused this event if you set up multiple objects to call 
+the same event function.
+.PP
+For example:
+.PP
+.Vb 4
+\&        my $frame = $java->create_object("java.awt.Frame","Title");
+\&        $java->do_event($frame,"addWindowListener",\e&event_handler);
+\&        my $button = $java->create_object("java.awt.Button","Push Me");
+\&        $java->do_event($button,"addActionListener",\e&event_handler);
+.Ve
+To stop listening for events do:
+.PP
+.Vb 1
+\&        $java->do_event($frame,"removeWindowListener");
+.Ve
+Where:
+\- \f(CW$frame\fR is the object for which you'd like to receive events
+\- \*(L"addWindowListener\*(R" specifies the types of events you want to listen for
+\- \e&event_handler is your event callback routing that will handle these events
+.PP
+You will keep receiving events you registered for until you make a \*(L"remove\*(R"
+call or your Java object goes away (out of scope, you destroy it, whatever).
+.PP
+Note the second parameter \s-1MUST\s0 be of the form:
+.PP
+.Vb 1
+\&        "<add | remove><Event Type>Listener"
+.Ve
+Default <Event Types> are:
+.PP
+.Vb 11
+\&        Component
+\&        Container
+\&        Focus
+\&        Key
+\&        Mouse
+\&        MouseMotion
+\&        Window
+\&        Action
+\&        Item
+\&        Adjustment
+\&        Text
+.Ve
+Swing <Event Types> are:
+.PP
+.Vb 15
+\&        Ancestor
+\&        Caret
+\&        CellEditor
+\&        Change
+\&        Hyperlink
+\&        InternalFrame
+\&        ListData
+\&        ListSelection
+\&        MenuDragMouse
+\&        MenuKey
+\&        Menu
+\&        PopupMenu
+\&        TreeExpansion
+\&        TreeSelection
+\&        TreeWillExpand
+.Ve
+And within most of these <Event Types> there are a number of specific events.
+Check out the Java event docs if you don't know what I'm talking about...
+.PP
+Here's what an event handler looks like:
+	
+	sub event_handler
+	{
+		\fImy\fR\|($object,$event) = \f(CW@_\fR;
+		if ($object->\fIsame\fR\|($frame))	# Old sytle
+			\s-1OR\s0
+		if ($object == \f(CW$frame\fR)		# New style!
+		{
+			# Event caused by our frame object!
+	
+			# This will get this event's \s-1ID\s0 value
+			my \f(CW$event_id\fR = \f(CW$event\fR\->getID\->get_value;
+.PP
+.Vb 2
+\&                        # Get value for a WINDOW_CLOSING event
+\&                        my $closing_id = $java->get_field("java.awt.event.WindowEvent","WINDOW_CLOSING")->get_value;
+.Ve
+.Vb 13
+\&                        if ($event_id == $closing_id)
+\&                        {
+\&                                # Close our frame @ user request
+\&                                $object->dispose;
+\&                        }
+\&                }
+\&                if ($object->same($button))     # old style
+\&                        OR
+\&                if ($object == $button)         # new style!
+\&                {
+\&                        print "You Pushed My Button!\en";
+\&                }
+\&        }
+.Ve
+Note return values from event handlers are ignored by Java.pm \s-1BUT\s0 are
+returned from the Event Loop as you'll see in a bit.
+.PP
+Note also how I had to call \*(L'get_value\*(R' to get the actualy integer values 
+of the \*(L'getID\*(R' function return value and the field value of \s-1WINDOW_CLOSING\s0.
+.Sh "Event Loops"
+Once you've set up your event handlers you must start the event loop
+to begin getting events \- there are two ways to do this.
+.PP
+.Vb 2
+\&        1. Have Java.pm handle the event loop 
+\&        2. Roll your own.
+.Ve
+Java.pm's event loop will block until an events happens \- typically this 
+is what you want but sometimes you might want more control, so I've decided
+to be nice this _one_ time & let you roll your own too.
+.PP
+Here's how Java.pm's event loop works for ya:
+.PP
+.Vb 3
+\&        #
+\&        # Set up a bunch of events...
+\&        #
+.Ve
+.Vb 5
+\&        while(1)
+\&        {
+\&                my $cont = $java->go;
+\&                last if (!defined $cont);
+\&        }
+.Ve
+Note this works similarly to Tk's event loop.  Your program will
+now just sit & respond to events via your event handlers.  Also note that
+Java.pm's event loop only handles \s-1ONE\s0 event & then returns \- the return
+value is whatever your event handler returned \s-1OR\s0 undef if there was an
+error (like you lost yer connexion to the \s-1JVM\s0).
+.PP
+Here's how you can create yer own Event Loop:
+.PP
+You ask Java.pm for a FileHandle that represents the incoming event stream.
+You can then select on this FileHandle or do whatever else you want \- remember
+this is a \s-1READ\s0 \s-1ONLY\s0 FileHandle so writing to it ain't going to do anything.
+Once you get a \*(L'line\*(R' from this FileHandle you can (and probably should)
+call \*(L'decipher_event\*(R' & the event will be dispatched to your event handler
+appropriately \- the return value being the return value of your event handler.
+This can look something like this:
+.PP
+.Vb 1
+\&        ## Roll my own event loop
+.Ve
+.Vb 2
+\&        # Get event FileHandle
+\&        my $event_file_handle = $java->get_event_FH;
+.Ve
+.Vb 3
+\&        # Set up my select loop
+\&        my $READBITS = 0;
+\&        vec($READBITS,$event_file_handle->fileno,1) = 1;
+.Ve
+.Vb 10
+\&        # Suck in lines forever & dispatch events
+\&        while(1)
+\&        {
+\&                my $nf = select(my $rb = $READBITS,undef,undef,undef);
+\&                if ($nf)
+\&                {
+\&                        my $event_line = <$event_file_handle>;
+\&                        $java->decipher_event($event_line);
+\&                }
+\&        }
+.Ve
+Note this example is \s-1EXACTLY\s0 what Java.pm's \*(L'go\*(R' function does \- if you
+roll yer own Event Loop you prolly want to do something more interesting 
+than this!
+.PP
+The upshot is you'll probably just want to use the \*(L'go\*(R' function but if
+you've got some other FileHandles going on & you don't want to block on
+just this one you can (and should) use the \*(L'roll your own\*(R' method.
+.Sh "Getting values"
+To \*(L'unwrap\*(R' java primitives (including Strings) you need to call the
+\&'get_value\*(R' function.  This will stringify any object given to it \-
+typcially this is only useful for \*(L'unwrapping\*(R' java primitives and
+Strings.
+.PP
+For example:
+.PP
+.Vb 2
+\&        my $string1 = $java->create_object("java.lang.String","Mark");
+\&        my $string2 = $java->create_object("java.lang.String","Jim");
+.Ve
+.Vb 5
+\&        if ($string1 eq $string2)
+\&        {
+\&                # WRONG!!!  
+\&                # $string1 & $string2 are objects!
+\&        }
+.Ve
+.Vb 6
+\&        if ($string1->get_value eq $string2->get_value)
+\&        {
+\&                # RIGHT!!!
+\&                # now you're comparing actual strings...
+\&        }
+\&        
+.Ve
+.Sh "Arrays \- new style!"
+Arrays are created with the \*(L'create_array\*(R' function call.  It needs a
+fully-qualified java object or primitive name and a dimension.
+.PP
+.Vb 4
+\&        If you specified 'use_tied_arrays' in your constructor to Java.pm
+\&        (& I think you should unless you have to perserve backwards 
+\&        compatibility...) all Java array references will be 'tied' to the
+\&        JavaArray class allowing a more intuitive interface to your array.
+.Ve
+.Vb 2
+\&        All array references will be _references_ to these objects.  
+\&        Here's how it looks (compare with 'old style' below):
+.Ve
+.Vb 3
+\&        # This will create a String array with 100 elements
+\&        #       (this is the same)
+\&        my $array  = $java->create_array("java.lang.String",100);
+.Ve
+.Vb 3
+\&        # Now it gets interesting!
+\&        # Don't forget on primitive arrays to use the ':' notation!
+\&        $array->[22] = "Mark rules the free world";
+.Ve
+.Vb 2
+\&        # Get element #99
+\&        my $element_99 = $array->[99];
+.Ve
+To get the length or size of an array do what you'd expect (I hope!)
+.PP
+For example:
+.PP
+.Vb 2
+\&        my $length = scalar (@$array);
+\&        my $size = $#{@array};
+.Ve
+.Vb 1
+\&        (remember you get an arrayref there sonny...)
+.Ve
+To pass as a function parameter just pass it in as normal:
+.PP
+.Vb 1
+\&        my $list = $java->java_util_Arrays("asList",$array);
+.Ve
+.Sh "Arrays \- old style"
+Arrays are created with the \*(L'create_array\*(R' function call.  It needs a
+fully-qualified java object or primitive name and a dimension.
+.PP
+For example:
+.PP
+.Vb 2
+\&        # This will create a char array with 100 elements
+\&        my $char_array  = $java->create_array("char",100);
+.Ve
+.Vb 4
+\&        # This will create a String array with 5 elements
+\&        my $string_array = $java->create_array("java.lang.String",5);
+\&                
+\&Array elements are get and set using the 'get_field' and 'set_field' function calls.
+.Ve
+For example:
+.PP
+.Vb 3
+\&        # Set element #22 to 'B'
+\&        # Don't forget on primitive arrays to use the ':' notation!
+\&        $char_array->set_field(22,"B:char");
+.Ve
+.Vb 2
+\&        # Set element #3 to 'Mark Rox'
+\&        $string_array->set_field(3,"Mark Rox");
+.Ve
+.Vb 2
+\&        # Get element #99
+\&        my $element_99 = $char_array->get_field(99);
+.Ve
+.Vb 2
+\&        # Get element #4
+\&        my $element_4 = $string_array->get_field(4);
+.Ve
+.Vb 4
+\&        # Don't forget to get the actual string value you gotta call
+\&        #       'get_value'!
+\&        my $char_value = $char_element_99->get_value;
+\&        my $string_value = $string_element_4->get_value;
+.Ve
+To get the length of an array use the get_length function.
+.PP
+For example:
+.PP
+.Vb 1
+\&        my $length = $string_array->get_length;
+.Ve
+Note this will return an actual integer!  You do not need to call \*(L'get_value\*(R' on \*(L'get_length's return value!
+.Sh "\s-1EXPORT\s0"
+None by default.
+.SH "AUTHOR"
+Mark Ethan Trostler, mark@zzo.com
+.SH "SEE ALSO"
+\fIperl\fR\|(1).
+http://www.javasoft.com/.
+Any sorta Java documentation you can get yer hands on!
+http://www.zzo.com/Java/getit.html
+
+.rn }` ''
+.IX Title "Java 3"
+.IX Name "Java - Perl extension for accessing a JVM remotely or locally"
+
+.IX Header "NAME"
+
+.IX Header "SYNOPSIS"
+
+.IX Header "DESCRIPTION"
+
+.IX Subsection "Starting a \s-1JVM\s0 server"
+
+.IX Subsection "Creating the root Java object"
+
+.IX Subsection "Creating java primitives"
+
+.IX Subsection "Localization and String encoding"
+
+.IX Subsection "Creating java objects"
+
+.IX Subsection "Calling java methods"
+
+.IX Subsection "Getting and Setting java object fields"
+
+.IX Subsection "Exceptions"
+
+.IX Subsection "Comparing Java objects"
+
+.IX Subsection "Events"
+
+.IX Subsection "Event Loops"
+
+.IX Subsection "Getting values"
+
+.IX Subsection "Arrays \- new style!"
+
+.IX Subsection "Arrays \- old style"
+
+.IX Subsection "\s-1EXPORT\s0"
+
+.IX Header "AUTHOR"
+
+.IX Header "SEE ALSO"
+

@@ -75,3 +75,17 @@ Perl stuff up to 2.2 - Java stuff the same
 		It's very cool!  See 'array.pl' in 'examples' directory
 		for example usage.
 	- Some other random bug fixes for the install stuff
+
+Both Perl & Java stuff moved up to 3.0
+	3/21/01
+	- Moved up major version numbers because the JavaServer protocol
+		has changed & is incompatible with previous versions.
+		It was changed to handle multi-line sending.  Now all commands
+		sent & received must be terminated by a Control-A beginning
+		a line by itself (akin to SMTP and the '.' to end DATA).
+	- So now you can say something like:
+		my $str = $java->create_object("java.lang.String","multi\nline\string);
+		As well as correctly fetch the value using 'get_value'.
+	- Should ONLY effect multi-line String processing BUT since the
+		protocol itself has changed yer gonna need 3.x versions so
+		they can understand each other.

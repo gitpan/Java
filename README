@@ -5,14 +5,13 @@ See 'Changes' files for the latest & greatest!
 See below for instructions on how to install on a Windows box running
 ActiveState Perl.
 
-Version 2.x of JavaServer & Java.pm are NOT backwards compatible!!!
-You MUST use a 2.x version of JavaServer with a 2.x version of Java.pm
-& same for 1.x versions!
+Version 3.x of JavaServer & Java.pm are NOT backwards compatible!!!
+You MUST use a 3.x version of JavaServer with a 3.x version of Java.pm
+& same for 2.x and 1.x versions!
 
-Check out the 'Changes' file for new stuff in the 2.1 version of the
-Java code bundled with Java-2.1 - basically addition of static start
-& stop methods to allow JavaServer to be 'hooked' into your current
-applications easier.  Thanks to Andreas Leue!
+Check out the 'Changes' file for new stuff in the 3.0 version of the
+Java code bundled with Java-3.0 - basically a protocol change to allow
+for multi-lined Strings.
 
 There are two parts to this:
 1. The 'Backend' - which is contained in 'JavaServer.jar'.  The backend must be
