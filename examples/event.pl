@@ -3,12 +3,20 @@ use strict;
 no strict 'subs';
 use Java;
 
+# Connect to JavaServer
 my $java = new Java(host => 'sooto.redback.com');
 
-my $frame = $java->create_object("java.awt.Frame","Mark Rox");
+# Create my Frame object
+my $frame = $java->create_object("java.awt.Frame","Event Example");
+
+# Set the size and show it
 $frame->setSize(200,200);
 $frame->show();
+
+# Set up an event listener
 $java->do_event($frame,"addWindowListener",\&event);
+
+
 my $dialog = $java->create_object("java.awt.Dialog",$frame,"Mark's Dialog","true:b");
 $dialog->setSize(400,400);
 $dialog->show();

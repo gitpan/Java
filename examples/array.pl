@@ -3,7 +3,7 @@ use strict;
 no strict 'subs';
 use Java;
 
-my $java = new Java(port=>2000);
+my $java = new Java();
 
 my $array = $java->create_array("java.lang.String",5);
 $array->set_field(3,"Mark Rulez");
@@ -28,4 +28,3 @@ for (my $i = 0; $i < $constructor_array->get_length; $i++)
 # GET [Ljava.lang.reflect.Constructor;^3#2
 # SET [Ljava.lang.reflect.Constructor;^3#(<object>)
 # GET [Ljava.lang.reflect.Constructor;^3#len	== get length
-sleep(9000);

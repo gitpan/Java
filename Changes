@@ -3,4 +3,8 @@ Revision history for Perl extension Java.
 1.0  Fri Apr 28 16:36:29 2000
 	- original version; created by h2xs 1.20 with options
 		-X -n Java -v 1.0
-
+1.1  
+	 - Allow creation of primitive Java array types
+	 - Allow Strings to be created using encodings for Localization
+		w/':string_<ENCODING>' syntax
+	 - Allow integers to be strings w/':string' syntax

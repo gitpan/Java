@@ -20,8 +20,10 @@ use Symbol;
 use Carp;
 use IO::Socket;
 
+use vars qw ($AUTOLOAD @ISA);
+
 require Exporter;
-our @ISA = qw(Exporter);
+@ISA = qw(Exporter);
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -31,7 +33,7 @@ our @ISA = qw(Exporter);
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 
-my $VERSION = '1.0';
+my $VERSION = '1.1';
 
 
 # Preloaded methods go here.
@@ -330,8 +332,8 @@ sub pretty_args
 		}
 		elsif (/^true:b$/i || /^false:b/i)
 		{
-			s/:b//;
-			$_ .= ":boolean";
+			# Stick that 'oolean' @ the end of ':b'!
+			$_ .= "oolean";
 		}
 		elsif (/:char$/i || /:short$/ || /:float$/ || /:double$/
 			|| /:byte$/ || /:long$/)
@@ -346,7 +348,21 @@ sub pretty_args
 		else
 		{
 			# It's a string
-			$_ = "\"$_\":string";
+			# in case it's an integer w/a ':string' already at the
+			#	end of it
+			# Or it is an encoding string like "Unicdoe:string_UTF"
+
+			# Either way we gotta put quotes around it & append
+			#	it w/:string or w/:string_<ENCODING>
+
+			# Put quotes around it
+			$_ = "\"".$_;
+			unless (s/:string/\":string/)
+			{
+				# Regular string
+				$_ .= "\":string";
+			}
+		
 		}
 	}
 	@_;
@@ -594,7 +610,7 @@ Here's a complete list of supported Java primitives:
 
 	Perl String Value  -> (converted to) -> Java Primitive
 	-----------------			--------------
-	"2344"					int
+	2344					int
 	"23:short"				short
 	"23:byte"				byte
 	"a:char"				char
@@ -603,6 +619,21 @@ Here's a complete list of supported Java primitives:
 	"3.14159:double"			double
 	"true:b" or "false:b"			boolean
 	"Anything else"				String
+		or
+	"Anything else:string"			String
+
+So... if you need to use an integer as a String say "343:string".
+
+=head2 Localization and String encoding
+
+Quick note on String encodings, you can specify that your strings are encoded
+in a specific format using the ":string_<ENCODING>" syntax like:
+
+	my $label = $java->create_object("java.awt.Label","Label:string_UTF8");
+
+This specifies that this String uses Unicode encoding.  See 
+http://www.javasoft.com/products/jdk/1.1/docs/guide/intl/encoding.doc.html
+for the complete list of valid Java String encodings.
 
 =head2 Creating java objects
 
@@ -902,32 +933,43 @@ For example:
 =head2 Arrays
 
 Arrays are created with the 'create_array' function call.  It needs a
-fully-qualified java object and a dimension.
+fully-qualified java object or primitive name and a dimension.
 
 For example:
 
+	# This will create a char array with 100 elements
+	my $char_array  = $java->create_array("char",100);
+
 	# This will create a String array with 5 elements
-	my $array = $java->create_array("java.lang.String",5);
+	my $string_array = $java->create_array("java.lang.String",5);
 		
 Array elements are get and set using the 'get_field' and 'set_field' function calls.
 
 For example:
 
+	# Set element #22 to 'B'
+	# Don't forget on primitive arrays to use the ':' notation!
+	$char_array->set_field(22,"B:char");
+
 	# Set element #3 to 'Mark Rox'
-	$array->set_field(3,"Mark Rox");
+	$string_array->set_field(3,"Mark Rox");
+
+	# Get element #99
+	my $element_99 = $char_array->get_field(99);
 
 	# Get element #4
-	my $element_4 = $array->get_field(4);
+	my $element_4 = $string_array->get_field(4);
 
 	# Don't forget to get the actual string value you gotta call
 	#	'get_value'!
-	my $string_value = $element_4->get_value;
+	my $char_value = $char_element_99->get_value;
+	my $string_value = $string_element_4->get_value;
 
 To get the length of an array use the get_length function.
 
 For example:
 
-	my $length = $array->get_length;
+	my $length = $string_array->get_length;
 
 Note this will return an actual integer!  You do not need to call 'get_value' on 'get_length's return value!
 

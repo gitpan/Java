@@ -18,3 +18,5 @@
 * Maybe 'use overload' for equality check
 * Fix stupid bug that doesn't allow a Java string to be an integer.
 * Would be nice to make Java arrays tie'd Perl arrays.  Should't be very hard.
+6/1/00
+* Create primitive arrays!
