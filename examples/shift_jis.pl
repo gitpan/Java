@@ -1,6 +1,5 @@
 #!/home/markt/usr/local/Linux/bin/perl
 
-#use lib '/home/markt/goo/Java';
 use Java;
 
 my $java = new Java(host=>"laggard");

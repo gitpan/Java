@@ -33,7 +33,7 @@ require Exporter;
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 
-my $VERSION = '1.1';
+my $VERSION = '1.14';
 
 
 # Preloaded methods go here.
@@ -97,6 +97,9 @@ sub _init
 	{
 		croak("Couldn't create event_server socket: $!");
 	}
+
+	# We wanna re-use the event server port in case of restart
+	setsockopt($self->{event_server}, SOL_SOCKET, SO_REUSEADDR, pack("l",1)) or croak "setsockopt: $!";
 
 	## Tell JavaServer what port we want our events on...
 	$self->{socket}->print($self->{event_port}."\n");

@@ -4,7 +4,7 @@ no strict 'subs';
 use Java;
 
 # Connect to JavaServer
-my $java = new Java(host => 'sooto.redback.com');
+my $java = new Java();
 
 # Create my Frame object
 my $frame = $java->create_object("java.awt.Frame","Event Example");

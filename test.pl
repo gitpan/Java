@@ -16,6 +16,7 @@ print "Do you want to continue? (Y/n) ";
 my $in = <STDIN>;
 exit 1 if ($in =~ /^n/i);
 }
+use lib '.';
 use Java;
 my $java = new Java();
 $loaded = 1;
@@ -56,6 +57,7 @@ print "ok $ok\n";
 
 print "Dynamic Class Loading.\n";
 my $class = $java->java_lang_Class("forName","Test");
+#my $class = $java->static_call("java.lang.Class","forName","Test");
 $ok++;
 print "ok $ok\n";
 

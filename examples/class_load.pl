@@ -3,11 +3,11 @@ use strict;
 no strict 'subs';
 use Java;
 
-my $java = new Java(host=>"laggard");
+my $java = new Java();
 
-my $obj = $java->create_object("thot.Test","mark");
-print $obj->get->get_value;
-exit;
+#my $obj = $java->create_object("thot.Test","mark");
+#print $obj->get->get_value;
+#exit;
 my $class = $java->java_lang_Class("forName","Test");
 my $constructors = $class->getConstructors();
 my $v = $constructors->{name};

@@ -1,4 +1,3 @@
-#!/home/markt/usr/local/Linux/bin/perl
 #!/home/markt/bin/perl -w
 
 use strict;

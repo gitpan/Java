@@ -1,10 +1,9 @@
-#!/home/markt/usr/local/Linux/bin/perl -w
+#!/home/markt/bin/perl -w
 use strict;
 no strict 'subs';
-use lib '/home/markt/goo/Java';
 use Java;
 
-my $java = new Java(host=>"laggard");
+my $java = new Java();
 
 
 my $thread = $java->create_object("java.lang.Thread");

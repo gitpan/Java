@@ -3,7 +3,7 @@ use strict;
 no strict 'subs';
 use Java;
 
-my $java = new Java();
+my $java = new Java;
 
 my $array = $java->create_array("java.lang.String",5);
 $array->set_field(3,"Mark Rulez");

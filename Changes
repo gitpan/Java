@@ -13,3 +13,5 @@ Revision history for Perl extension Java.
 1.13
 	- Added 'static_call' function to make static method calls on
 		classes NOT in packages.
+1.14
+	- Just setsockopt SO_REUSEADDR on Java.pm event_server port

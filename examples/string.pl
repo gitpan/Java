@@ -1,7 +1,6 @@
 #!/home/markt/usr/local/Linux/bin/perl -w
 use strict;
 no strict 'subs';
-use lib '/home/markt/goo/Java';
 use Java;
 
 use utf8;
