@@ -48,6 +48,8 @@ my $VERSION = '2.2';
 # Extremely cheesy
 use constant PARAMETER_SEPARATOR => "";
 
+use constant NULL_TOKEN => "___NULL___";
+
 # Preloaded methods go here.
 sub new
 {
@@ -124,9 +126,9 @@ sub _init
 	my $peer_address;
 	($self->{event_socket}, $peer_address) = $self->{event_server}->accept;
 
-	#my($port, $iaddr) = sockaddr_in($peer_address);
-	#$iaddr = inet_ntoa($iaddr);
-	#print STDERR "Event port connexion from $iaddr:$port!\n";
+	my($port, $iaddr) = sockaddr_in($peer_address);
+	$iaddr = inet_ntoa($iaddr);
+	print STDERR "Event port connexion from $iaddr:$port!\n";
 
 	# Don't wanna accept any more event_server connexions
 	undef $self->{event_server};
@@ -217,7 +219,8 @@ sub new_java_object
 	my $java;
 	chomp $line;
 
-	return if ($line eq 'NUL');
+	# NULL!
+	return 0 if ($line eq 'NUL');
 
 	#
 	# If we're creating this object from another one
@@ -372,7 +375,12 @@ sub pretty_args
 	##
 	foreach (@_)
 	{
-		if (/^\d+$/)
+		if (!defined)
+		{
+			# Wanna pass 'null' in
+			$_ = NULL_TOKEN;
+		}
+		elsif (/^\d+$/)
 		{
 			# If it looks like an INT it is an int...
 			$_ .= ":int";
@@ -597,6 +605,7 @@ sub go
 	return if (!$nf);
 
 	my $line = $self->get_event_socket->getline;
+print STDERR "GOT LINE $line\n";
 	return if (!defined $line); 	# lost somebody
 
 	$self->decipher_event($line);
@@ -692,13 +701,13 @@ This module allows you to talk to a JVM on a local or remote machine.  You
 can create objects, call functions, access fields, deal with arrays, get
 events & all the nonsense you can do in Java - from Perl!
 
-=head2 Starting a JVM server
+=head1 Starting a JVM server
 
 First you must run 'JavaServer' on the machine to which you will make
 connections.  Simply do a 'java JavaServer' to start the server.  By default
 it will start listening on port 2000.  Make sure the 'JavaServer.jar' is in your classpath - also make sure the Swing stuff (JFC if you prefer) is in your classpath as well if you want to use Swing stuff (note this does not apply to JVM 1.2+).
 
-=head2 Creating the root Java object
+=head1 Creating the root Java object
 
 You connect to a remote (or local) JVM when you create a new Java instance.
 The new call accepts a hash with the following keys:
@@ -709,12 +718,13 @@ The new call accepts a hash with the following keys:
 			default is 2000
 	event_port => port that the remote JVM will send events to
 			default is 2001
-        use_tied_arrays => tells Java.pm whether to use 'tieds' Java arrays
-                        by default or not - see JavaArray.pm for more info
-                        on this exciting new feature!
-                        If set to true all array references will be 'tied' to
-                        'JavaArrays' allowing a more intuitive interface to
-                        them.  See the section on Arrays for more info also.
+        use_tied_arrays => tells Java.pm whether to use 'tieds' Java 
+			arrays by default or not - see JavaArray.pm 
+			for more info on this exciting new feature!
+                        If set to true all array references will be 
+			'tied' to 'JavaArrays' allowing a more intuitive 
+			interface to them.  See the section on Arrays 
+			for more info also.
 
 For example:
 
@@ -725,7 +735,7 @@ You can have any number of java 'environments' in a Perl program.
 
 Also if you 'use strict' you must do a 'no struct 'subs'' 'cuz all Java method calls are AUTOLOAD'ed - sorry.
 
-=head2 Creating java primitives
+=head1 Creating java primitives
 
 The Java.pm module will treat all integers encountered in parameter
 lists as integer and strings as java Strings.  All other primitive types
@@ -751,7 +761,7 @@ Here's a complete list of supported Java primitives:
 
 So... if you need to use an integer as a String say "343:string".
 
-=head2 Localization and String encoding
+=head1 Localization and String encoding
 
 Quick note on String encodings, you can specify that your strings are encoded
 in a specific format using the ":string_<ENCODING>" syntax like:
@@ -762,7 +772,7 @@ This specifies that this String uses Unicode encoding.  See
 http://www.javasoft.com/products/jdk/1.1/docs/guide/intl/encoding.doc.html
 for the complete list of valid Java String encodings.
 
-=head2 Creating java objects
+=head1 Creating java objects
 
 Once you've connected to a JVM via the 'new Java' call you can start creating
 Java objects.  This is accomplished via the 'create_object' function.
@@ -783,7 +793,7 @@ In these cases a 'java.awt.Frame' takes a String as the lone parameter,
 whereas a 'java.awt.Dialog' takes a Frame, a String, and a boolean value 
 in its constructor.
 
-=head2 Calling java methods
+=head1 Calling java methods
 
 You can make both static and instantiated method calls on java objects.
 The parameter lists work exactly like constructor parameter lists - if you
@@ -826,7 +836,7 @@ function like:
 
 	my $return_value = $java->static_call("MyStaticClass","<function_name>",@params);
 
-=head2 Getting and Setting java object fields
+=head1 Getting and Setting java object fields
 
 You can get and set individual fields in java objects (static or instantiated) 
 using the 'get_field' and 'set_field' methods.  All 'get_field' calls return
@@ -859,7 +869,42 @@ Set an instantiated field
 
 	$obj->set_field("integer_field_name",400);
 
-=head2 Exceptions
+=head1 Passing & receiving the 'null' value
+
+To pass a 'null' in a function parameter list or to set a field or array 
+index, used Perl's 'undef'.  So:
+
+	$object->function($param1, undef, $param2);
+
+Will pass 'null' as the second parameter to that function.  Similarly
+to set a field or array index to null:
+
+	$object->set_field("fieldname",undef);	# Set field to null
+	$array->[4] = undef;	# Set array value to null
+
+Of course if the field or array type is a primimtive type you will get
+a NullPointerException - Java doesn't seem to like that!
+	
+If a function returns null or a field or array index is equal to null,
+you will recieve 'undef' back.  Note this is indistinguishable (sp??)
+from a function with a 'void' return value.  So:
+
+	my $retval = $object->function($param1,$param2,undef,"Another param");
+	print "It returned NULL\n" if (!$retval);
+
+Similarly:
+
+	my $f_value = $object->get_field("someField");
+	print "someField is NULL\n" if (!$f_value);
+
+	my $a_value = $array->[38];
+	print "Array index 38 is NULL\n" if (!$a_value);
+
+If someone can think of a good reason why the null return value should
+not be undef or should be different than what a void function returns 
+I'd like to hear about it!
+
+=head1 Exceptions
 
 Currently Java.pm will 'croak' when an Exception is encountered in JavaServer.
 So the way to deal with them is to enclose your Java expression that might
@@ -897,7 +942,7 @@ integer - say 'dd' - the printed error message would be:
 	java.lang.Exception: java.lang.NumberFormatException: dd 
 
 
-=head2 Comparing Java objects
+=head1 Comparing Java objects
 
 The '==' operator is now overloaded to provide this functionality!  Woohoo!
 So you can now say stuff like:
@@ -927,7 +972,7 @@ object by using the 'same' function like:
 
 You'll see why this is useful in the next section 'Events'.
 
-=head2 Events
+=head1 Events
 
 Events are passed from the remote JVM to Perl5 via a separate event port.
 To enable events on an object use the 'do_event' function.  Your callback
@@ -1032,7 +1077,7 @@ returned from the Event Loop as you'll see in a bit.
 Note also how I had to call 'get_value' to get the actualy integer values 
 of the 'getID' function return value and the field value of WINDOW_CLOSING.
 
-=head2 Event Loops
+=head1 Event Loops
 
 Once you've set up your event handlers you must start the event loop
 to begin getting events - there are two ways to do this.
@@ -1100,7 +1145,7 @@ The upshot is you'll probably just want to use the 'go' function but if
 you've got some other FileHandles going on & you don't want to block on
 just this one you can (and should) use the 'roll your own' method.
 
-=head2 Getting values
+=head1 Getting values
 
 To 'unwrap' java primitives (including Strings) you need to call the
 'get_value' function.  This will stringify any object given to it -
@@ -1125,7 +1170,7 @@ For example:
 	}
 	
 
-=head2 Arrays - new style!
+=head1 Arrays - new style!
 
 Arrays are created with the 'create_array' function call.  It needs a
 fully-qualified java object or primitive name and a dimension.
@@ -1162,7 +1207,7 @@ To pass as a function parameter just pass it in as normal:
 
         my $list = $java->java_util_Arrays("asList",$array);
 
-=head2 Arrays - old style
+=head1 Arrays - old style
 
 Arrays are created with the 'create_array' function call.  It needs a
 fully-qualified java object or primitive name and a dimension.
@@ -1206,7 +1251,7 @@ For example:
 Note this will return an actual integer!  You do not need to call 'get_value' on 'get_length's return value!
 
 
-=head2 EXPORT
+=head1 EXPORT
 
 None by default.
 
@@ -1220,5 +1265,13 @@ perl(1).
 http://www.javasoft.com/.
 Any sorta Java documentation you can get yer hands on!
 http://www.zzo.com/Java/getit.html
+
+=head1 COPYRIGHT
+
+Copyright (c) 2000, 2001, Mark Ethan Trostler
+
+All Rights Reserved. This module is free software.  It may be used, redistributed and/or modified under the terms of the Perl Artistic License. 
+
+(see http://www.perl.com/perl/misc/Artistic.html) 
 
 =cut

@@ -37,10 +37,17 @@ $win->getContentPane->add($msgLabel,"Center");
 
 $win->getContentPane->add($buttonbox,"South");
 
+my $myTxtArea = $java->create_object("java.awt.TextArea","",15,60,1);
+$myTxtArea->append("Hello World\n");
+$myTxtArea->append("Check out these multi-lined paramter strings!\n");
+$myTxtArea->append("Howdy!\n");
+
+$win->getContentPane->add($myTxtArea,"East");
+
 $java->do_event($yesButton,"addActionListener", \&event);
 $java->do_event($noButton,"addActionListener", \&event);
 
-$win->pack;
+#$win->pack;
 $win->show;
 
 ## Roll my own event loop
@@ -72,11 +79,8 @@ sub event
 {
 	my($object,$event) = @_;
 
-print "GOT EVENT: $object\t$event\n";
-
 	my $label = $object->getLabel->get_value;
 
-	#if ($object->same($yesButton))
 	if ($object == $yesButton)
 	{
 		print "Yes Button!  Label: $label\n";
@@ -85,4 +89,8 @@ print "GOT EVENT: $object\t$event\n";
 	{
 		print "No Button!  Label: $label\n";
 	}
+
+	# Check out received multi-lined strings back...
+	my $text = $myTxtArea->getText->get_value;
+	print "Text is:\n$text\n";
 }

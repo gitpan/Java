@@ -1,11 +1,13 @@
 #!/home/markt/bin/perl -w
 use strict;
 no strict 'subs';
+use lib '..';
 use Java;
 
 # Connect to JavaServer
 my $java = new Java();
 
+print "going to frame1\n";
 # Create my Frame object
 my $frame = $java->create_object("java.awt.Frame","Event Example");
 
@@ -16,11 +18,15 @@ $frame->show();
 # Set up an event listener
 $java->do_event($frame,"addWindowListener",\&event);
 
+print "going to dialog\n";
 
-my $dialog = $java->create_object("java.awt.Dialog",$frame,"Mark's Dialog","true:b");
+my $dialog = $java->create_object("java.awt.Dialog",$frame,"Mark's Dialog");
 $dialog->setSize(400,400);
-$dialog->show();
+print "going to dialog show\n";
+$dialog->setVisible("true:b");
+print "back from dialog show\n";
 
+print "going to frame2\n";
 
 my $frame2 = $java->create_object("java.awt.Frame","Mark Rox");
 $frame2->setSize(200,200);
@@ -29,6 +35,7 @@ $java->do_event($frame2,"addWindowListener",\&event);
 
 while(1)
 {
+	print "GO'ing\n";
 	my $b = $java->go;
 	last if (!defined $b);
 }

@@ -19,7 +19,9 @@ $array->[0] = "This sux";
 my $len = @$array;
 my $vv =  $array->[3]->get_value;
 my $vvv =  $array->[0]->get_value;
-print "ARRAY: $vv $vvv $len\n";
+print "ARRAY: 3 $vv 0 $vvv $len\n";
+$array->[3] = undef;
+print "Array 3 is NULL\n" if (!$array->[3]);
 
 my $char_array = $java->create_array("java.lang.Integer",100);
 for (my $i = 0; $i < @$char_array; $i++)
@@ -44,6 +46,11 @@ my $list = $java->java_util_Arrays("asList",$array);
 print $list->get_value,"\n";
 my $ln= $java->java_util_Arrays("asList",$char_array);
 print $ln->get_value,"\n";
+
+
+## Primitive array
+my $prim_array = $java->create_array("int",3);
+$prim_array->[2] = 0;
 
 # NEW [Ljava.lang.reflect.Constructor;(5 (,34,2,3,2))
 # GET [Ljava.lang.reflect.Constructor;^3#2

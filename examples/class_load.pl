@@ -16,7 +16,7 @@ my $test_obj = $class->newInstance();
 my $val = $test_obj->get->get_value;
 print "GOT: $v $val\n";
 
-my $val3 = $java->get_field("TestInterface","two_long")->get_value;
+my $val3 = $java->get_field("TestI","two_long")->get_value;
 #my $val3 = $int->get_field('ErErrSetup')->get_value;
 print "GOT: $val3\n";
 

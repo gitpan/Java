@@ -96,3 +96,19 @@ Perl stuff up to 3.1 Java stuff the same
 		call instantiated functions with '_'s in their names.
 	- Also threw in some reorg of how functions get called to isolate
 		the code.
+....	- License change for Perl code to Perl's Artistic License (was GPL)
+....	- License change for Java code to LGPL 2.1 (was GPL)
+
+6/29/01 Perl 3.2 Java 3.1
+	- Now can handle 'null' values for parameter lists & return values
+		-Perl stuff use 'undef' to pass in a null value
+			null values will be returned as 0 (zero)
+			So you say: $object->function($param1,undef,$parm3);
+				to pass null as the 2nd parameter
+			Or: $array->[4] = undef;
+			perldoc Java.pm for more info
+		-Java stuff - a protocol addition of NULL_TOKEN
+			To pass a 'null' to JavaServer use NULL_TOKEN as 
+			defined in Dealer.java (curently '___NULL___') & 'NUL'
+			value now correctly returned for null values
+			(same thing as functions that return void)
