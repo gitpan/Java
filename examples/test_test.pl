@@ -6,6 +6,9 @@ use Java;
 my $java = new Java();
 
 my $obj = $java->create_object("Test","mark");
+my $frame = $java->create_object("java.awt.Frame","Frame #1");
+$frame->setSize(200,300);
+
 my $val =  $obj->get->get_value;
 print "VAL: $val\n";
 my $obj2 = $java->create_object("Test",undef);

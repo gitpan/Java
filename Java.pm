@@ -1,6 +1,14 @@
-# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.12 2001/11/30 19:18:52 mark Exp $
-# $Revision: 1.12 $
+# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.14 2002/09/03 17:26:43 mark Exp $
+# $Revision: 1.14 $
 # $Log: Java.pm,v $
+# Revision 1.14  2002/09/03 17:26:43  mark
+# bump version #
+#
+# Revision 1.13  2002/09/03 17:21:03  mark
+# Fix Makefile.PL so EXE_FILES are an anon array
+# When checking for ERROR make sure it must begin on beginning of line!
+# Better perldocs
+#
 # Revision 1.12  2001/11/30 19:18:52  mark
 # Windows fix
 #
@@ -73,7 +81,7 @@ use vars qw ($AUTOLOAD @ISA $VERSION);
 require Exporter;
 @ISA = qw(Exporter);
 
-$VERSION = '4.2';
+$VERSION = '4.3';
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -376,7 +384,7 @@ sub send_command_and_get_response
 		chomp $resp;	# clean up last newline
 
 		# Pull out the Exception object if it's there
-		if ($resp =~ /ERROR/)
+		if ($resp =~ /^ERROR/)
 		{
 			# Peel off Exception object if it's there
 			if ($resp =~ s/%%%(.*)$//)
@@ -972,13 +980,13 @@ The syntax is exactly what you'd expect (I hope!).
 
 For example:
 
-	$frame->setSize(200,500);
-	$frame->show();  (or $frame->show)
+	$frame->setSize(200, 500);
+	$frame->show();  # (or $frame->show)
 
 Note functions that don't take any parameters don't need the parentheses!
 Alternatively you can use the 'call' function to make method calls:
 
-	$frame->call('setSize', 500,500);
+	$frame->call('setSize', 500, 500);
 	$frame->call('show');
 
 But that's no fun!
@@ -990,17 +998,34 @@ For example:
 To call the static method 'forName' in the object 'java.lang.Class'
 it looks like this:
 
-	my $class = $java->java_lang_Class("forName","Test");
+	my $class = $java->java_lang_Class("forName", "Test");
 
 Note you use the '$java' object returned from the call to 'new Java'
 to access static methods - the static object must be fully-qualified
-separated by '_'s instead of '.'s.  And finally the first parameter
+separated by '_'s instead of '.'s WHEN USED AS A FUNCTION NAME (as
+opposed to the method below when it's used as a string - in the below
+case DO NOT replace '.'s with '_'s)!  And finally the first parameter 
 is the name of the static function followed by any parameters to it.
 
 If your static class is NOT in a package you MUST use the 'static_call'
 function like:
 
 	my $return_value = $java->static_call("MyStaticClass","<function_name>",@params);
+
+Even if your class is in a package you can use the 'static_call' function
+(Note when using the 'static_call' function your fully qualified class name
+is separated by '.' NOT '_'s as in the example above):
+
+    my $class = $java->static_call("java.lang.Class", "forName", "Test");
+        IS EXACTLY EQUIVALENT TO
+	my $class = $java->java_lang_Class("forName", "Test");
+
+Note the use of '.'s in the first case and '_'s in the second case.
+Also the returned value '$class' in an OBJECT NOT a string.  To
+'stringify' it use the 'get_value' function as described below.
+Here's a sneak peek:
+
+    print "This java.lang.Class object's name is ", $class->get_value, "\n";
 
 =head1 Getting and Setting java object fields
 
@@ -1034,6 +1059,110 @@ Set a static field
 Set an instantiated field
 
 	$obj->set_field("integer_field_name",400);
+
+=head1 Getting values
+
+To 'unwrap' java primitives (including Strings) you need to call the
+'get_value' function.  This will stringify any object given to it -
+typcially this is only useful for 'unwrapping' java primitives and
+Strings.  Note for all other object the 'toString()' method is called.
+
+For example:
+
+	my $string1 = $java->create_object("java.lang.String","Mark");
+	my $string2 = $java->create_object("java.lang.String","Jim");
+
+	if ($string1 eq $string2)
+	{
+		# WRONG!!!  
+		# $string1 & $string2 are objects!
+	}
+
+	if ($string1->get_value eq $string2->get_value)
+	{
+		# RIGHT!!!
+		# now you're comparing actual strings...
+	}
+
+=head1 Arrays - new style!
+
+Arrays are created with the 'create_array' function call.  It needs a
+fully-qualified java object or primitive name and a dimension.
+
+        If you specified 'use_tied_arrays' in your constructor to Java.pm
+        (& I think you should unless you have to perserve backwards 
+        compatibility...) all Java array references will be 'tied' to the
+        JavaArray class allowing a more intuitive interface to your array.
+
+        All array references will be _references_ to these objects.  
+        Here's how it looks (compare with 'old style' below):
+
+	# This will create a String array with 100 elements
+    #       (this is the same)
+	my $array  = $java->create_array("java.lang.String",100);
+
+    # Now it gets interesting!
+	# Don't forget on primitive arrays to use the ':' notation!
+	$array->[22] = "Mark rules the free world";
+
+	# Get element #99
+	my $element_99 = $array->[99];
+
+To get the length or size of an array do what you'd expect (I hope!)
+
+For example:
+
+	my $length = scalar (@$array);
+	my $size = $#{@array};
+
+        (remember you get an arrayref there sonny...)
+
+To pass as a function parameter just pass it in as normal:
+
+        my $list = $java->java_util_Arrays("asList",$array);
+
+=head1 Arrays - old style
+
+Arrays are created with the 'create_array' function call.  It needs a
+fully-qualified java object or primitive name and a dimension.
+
+For example:
+
+	# This will create a char array with 100 elements
+	my $char_array  = $java->create_array("char",100);
+
+	# This will create a String array with 5 elements
+	my $string_array = $java->create_array("java.lang.String",5);
+		
+Array elements are get and set using the 'get_field' and 'set_field' function calls.
+
+For example:
+
+	# Set element #22 to 'B'
+	# Don't forget on primitive arrays to use the ':' notation!
+	$char_array->set_field(22,"B:char");
+
+	# Set element #3 to 'Mark Rox'
+	$string_array->set_field(3,"Mark Rox");
+
+	# Get element #99
+	my $element_99 = $char_array->get_field(99);
+
+	# Get element #4
+	my $element_4 = $string_array->get_field(4);
+
+	# Don't forget to get the actual string value you gotta call
+	#	'get_value'!
+	my $char_value = $char_element_99->get_value;
+	my $string_value = $string_element_4->get_value;
+
+To get the length of an array use the get_length function.
+
+For example:
+
+	my $length = $string_array->get_length;
+
+Note this will return an actual integer!  You do not need to call 'get_value' on 'get_length's return value!
 
 =head1 Passing & receiving the 'null' value
 
@@ -1113,7 +1242,7 @@ So here's what an Exception handler can look like:
 	if ($@)
 	{
 		# An exception was thrown!!
-		$@ =~ s/ERROR: //;	# Gets rid of 'ERROR: '
+		$@ =~ s/^ERROR: //;	# Gets rid of 'ERROR: '
 		$@ =~ s/at $0.*$//;	# Gets rid of 'croak' generated stuff
 
 		# Print just the Java stuff
@@ -1351,111 +1480,6 @@ than this!
 The upshot is you'll probably just want to use the 'go' function but if
 you've got some other FileHandles going on & you don't want to block on
 just this one you can (and should) use the 'roll your own' method.
-
-=head1 Getting values
-
-To 'unwrap' java primitives (including Strings) you need to call the
-'get_value' function.  This will stringify any object given to it -
-typcially this is only useful for 'unwrapping' java primitives and
-Strings.
-
-For example:
-
-	my $string1 = $java->create_object("java.lang.String","Mark");
-	my $string2 = $java->create_object("java.lang.String","Jim");
-
-	if ($string1 eq $string2)
-	{
-		# WRONG!!!  
-		# $string1 & $string2 are objects!
-	}
-
-	if ($string1->get_value eq $string2->get_value)
-	{
-		# RIGHT!!!
-		# now you're comparing actual strings...
-	}
-	
-
-=head1 Arrays - new style!
-
-Arrays are created with the 'create_array' function call.  It needs a
-fully-qualified java object or primitive name and a dimension.
-
-        If you specified 'use_tied_arrays' in your constructor to Java.pm
-        (& I think you should unless you have to perserve backwards 
-        compatibility...) all Java array references will be 'tied' to the
-        JavaArray class allowing a more intuitive interface to your array.
-
-        All array references will be _references_ to these objects.  
-        Here's how it looks (compare with 'old style' below):
-
-	# This will create a String array with 100 elements
-        #       (this is the same)
-	my $array  = $java->create_array("java.lang.String",100);
-
-        # Now it gets interesting!
-	# Don't forget on primitive arrays to use the ':' notation!
-	$array->[22] = "Mark rules the free world";
-
-	# Get element #99
-	my $element_99 = $array->[99];
-
-To get the length or size of an array do what you'd expect (I hope!)
-
-For example:
-
-	my $length = scalar (@$array);
-	my $size = $#{@array};
-
-        (remember you get an arrayref there sonny...)
-
-To pass as a function parameter just pass it in as normal:
-
-        my $list = $java->java_util_Arrays("asList",$array);
-
-=head1 Arrays - old style
-
-Arrays are created with the 'create_array' function call.  It needs a
-fully-qualified java object or primitive name and a dimension.
-
-For example:
-
-	# This will create a char array with 100 elements
-	my $char_array  = $java->create_array("char",100);
-
-	# This will create a String array with 5 elements
-	my $string_array = $java->create_array("java.lang.String",5);
-		
-Array elements are get and set using the 'get_field' and 'set_field' function calls.
-
-For example:
-
-	# Set element #22 to 'B'
-	# Don't forget on primitive arrays to use the ':' notation!
-	$char_array->set_field(22,"B:char");
-
-	# Set element #3 to 'Mark Rox'
-	$string_array->set_field(3,"Mark Rox");
-
-	# Get element #99
-	my $element_99 = $char_array->get_field(99);
-
-	# Get element #4
-	my $element_4 = $string_array->get_field(4);
-
-	# Don't forget to get the actual string value you gotta call
-	#	'get_value'!
-	my $char_value = $char_element_99->get_value;
-	my $string_value = $string_element_4->get_value;
-
-To get the length of an array use the get_length function.
-
-For example:
-
-	my $length = $string_array->get_length;
-
-Note this will return an actual integer!  You do not need to call 'get_value' on 'get_length's return value!
 
 =head1 Authorization
 
