@@ -7,6 +7,7 @@
 use strict;
 no strict 'subs';
 use vars qw($java $frame);
+use lib qw(../../..);
 use Java;
 
 # Set up some convenience stuff

@@ -161,5 +161,15 @@ Java 4.6
 	fix test script
 
 
-	
+2/25/04
+Java 5.1
+	- added logging framework/better logging
+	- easier to run JavaServer either in standalone mode or integrated
+	    into another app
+	- Shutdownable interface to kill of threads
+	- fixed to get protected/private fields/functions
+Perl 4.7
+	- updated examples to use lib '..' & use com.zzo.javaserver package
+	    when instantiated Test classes
+	- add 'destroy' method for hand destroying objects
 

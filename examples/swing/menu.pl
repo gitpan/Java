@@ -2,6 +2,7 @@
 
 use strict;
 no strict 'subs';
+use lib qw(../..);
 use Java;
 
 # Set up some convenience stuff

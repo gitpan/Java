@@ -1,6 +1,7 @@
 #!/home/markt/usr/local/Linux/bin/perl -w
 use strict;
 no strict 'subs';
+use lib qw(..);
 use Java;
 
 ###

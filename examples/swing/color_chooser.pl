@@ -2,7 +2,7 @@
 
 use strict;
 no strict 'subs';
-use lib '/home/markt/goo/Java';
+use lib '../..';
 use Java;
 
 my $awt = "java.awt";

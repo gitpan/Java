@@ -9,7 +9,7 @@ my $java = new Java();
 #my $obj = $java->create_object("thot.Test","mark");
 #print $obj->get->get_value;
 #exit;
-my $class = $java->java_lang_Class("forName","Test2");
+my $class = $java->java_lang_Class("forName","com.zzo.javaserver.Test2");
 my $constructors = $class->getConstructors();
 #my $v = $constructors->name;
 my $test_obj = $class->newInstance();

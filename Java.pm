@@ -1,6 +1,11 @@
-# $Header: /cvsroot/javaserver/javaserver/JavaServer/perl/Java.pm,v 1.2 2004/01/19 23:28:59 zzo Exp $
-# $Revision: 1.2 $
+# $Header: /cvsroot/javaserver/javaserver/JavaServer/perl/Java.pm,v 1.3 2004/02/25 07:52:15 zzo Exp $
+# $Revision: 1.3 $
 # $Log: Java.pm,v $
+# Revision 1.3  2004/02/25 07:52:15  zzo
+# - Fix test scripts to use local Java.pm & Test & Test2 classes in the
+# com.zzo.javaserver package
+# - added 'destroy' method to Java.pm so y'all can hand destroy objects
+#
 # Revision 1.2  2004/01/19 23:28:59  zzo
 # Moved the java files around to put them in 'com.zzo.javaserver' package
 # Fixed test script
@@ -97,7 +102,7 @@ use vars qw ($AUTOLOAD @ISA $VERSION);
 require Exporter;
 @ISA = qw(Exporter);
 
-$VERSION = '4.6';
+$VERSION = '4.7';
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -626,13 +631,27 @@ sub DESTROY
 		# Entire Java hash going out of scope
 		$self->{socket}->close() if ($self->{socket});
 	        $self->{event_socket}->close() if ($self->{event_socket});
+    undef $self;
 	}
 	else
 	{
 		# Plain old scalar - java object
 		# Tell JavaServer we're done w/it...
-		my $resp = $self->{java}->send_command_and_get_response("BYE $self->{name}");
+		my $resp = 
+      $self->{java}->send_command_and_get_response("BYE $self->{name}");
+    undef $self;
 	}
+}
+
+sub destroy 
+{
+	my($self) = shift;
+	if (!$self->_is_java)
+	{
+		my $resp = 
+      $self->{java}->send_command_and_get_response("BYE $self->{name}");
+    undef $self;
+  }
 }
 
 ##

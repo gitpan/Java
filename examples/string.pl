@@ -1,6 +1,7 @@
 #!/home/markt/usr/local/Linux/bin/perl -w
 use strict;
 no strict 'subs';
+use lib '..';
 use Java;
 
 use utf8;
@@ -11,7 +12,7 @@ use utf8;
 # See http://www.javasoft.com/products/jdk/1.1/docs/guide/intl/encoding.doc.html
 #	for list of valid Java string encodings...
 ###
-my $java = new Java(host=>"laggard");
+my $java = new Java;
 
 my $new;
 # A unicode string - god know what it is...

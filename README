@@ -10,7 +10,7 @@ The Java portion has been bumped up to 5.x only because the java classes
 now reside in the com.zzo.javaserver package.  So to start the server
 you should now:
 % java -cp /path/to/JavaServer.jar com.zzo.javaserver.JavaServer
-This does really effect the perl stuff at all.
+This does NOT effect the perl stuff at all.
 The perl stuff got a minor bump 'cuz the test script should work now...
 However previous 4.x Perl versions are compatible with the new 5.x JavaServer.jar
 

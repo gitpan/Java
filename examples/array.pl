@@ -33,7 +33,7 @@ for (my $i = 0; $i < @$char_array; $i++)
         $char_array->[$i] = $java->create_object("java.lang.Integer",$i);
 }
 
-my $class = $java->java_lang_Class("forName","Test");
+my $class = $java->java_lang_Class("forName","com.zzo.javaserver.Test");
 my $constructor_array = $class->getConstructors();
 for (my $i = 0; $i < @$constructor_array; $i++)
 {
@@ -57,7 +57,7 @@ my $prim_array = $java->create_array("int",3);
 $prim_array->[2] = 0;
 
 my @tied_array;
-my $test_obj = $java->create_object("Test","Mark Rox");
+my $test_obj = $java->create_object("com.zzo.javaserver.Test","Mark Rox");
 print "Created Test object ",$test_obj->get->get_value,"\n";
 my $arr = $test_obj->getArr;
 for (my $i = 0; $i < @$arr; $i++)
