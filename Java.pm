@@ -1,6 +1,13 @@
-# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.16 2003/06/24 17:28:48 mark Exp $
-# $Revision: 1.16 $
+# $Header: /cvsroot/javaserver/javaserver/JavaServer/perl/Java.pm,v 1.2 2004/01/19 23:28:59 zzo Exp $
+# $Revision: 1.2 $
 # $Log: Java.pm,v $
+# Revision 1.2  2004/01/19 23:28:59  zzo
+# Moved the java files around to put them in 'com.zzo.javaserver' package
+# Fixed test script
+#
+# Revision 1.1.1.1  2003/11/17 22:08:07  zzo
+# Initial import.
+#
 # Revision 1.16  2003/06/24 17:28:48  mark
 # - Correctly encode parameter value for static set_field calls
 # - 'die' instead of exit on authentication failure
@@ -90,7 +97,7 @@ use vars qw ($AUTOLOAD @ISA $VERSION);
 require Exporter;
 @ISA = qw(Exporter);
 
-$VERSION = '4.5';
+$VERSION = '4.6';
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.

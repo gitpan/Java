@@ -56,7 +56,7 @@ print "ok $ok\n";
 # $my vv = $array->get_value(3);
 
 print "Dynamic Class Loading.\n";
-my $class = $java->java_lang_Class("forName","Test");
+my $class = $java->java_lang_Class("forName","com.zzo.javaserver.Test");
 #my $class = $java->static_call("java.lang.Class","forName","Test");
 $ok++;
 print "ok $ok\n";

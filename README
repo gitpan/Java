@@ -5,6 +5,16 @@ See 'Changes' files for the latest & greatest!
 See below for instructions on how to install on a Windows box running
 ActiveState Perl.
 
+1/19/04
+The Java portion has been bumped up to 5.x only because the java classes
+now reside in the com.zzo.javaserver package.  So to start the server
+you should now:
+% java -cp /path/to/JavaServer.jar com.zzo.javaserver.JavaServer
+This does really effect the perl stuff at all.
+The perl stuff got a minor bump 'cuz the test script should work now...
+However previous 4.x Perl versions are compatible with the new 5.x JavaServer.jar
+
+
 Once again a major version change meaning the 4.x is NOT backwards
 compatibile with previous JavaServer versions.  The 4.x stuff gives
 you very basic authorization, ability to turn off the event_port if

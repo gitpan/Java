@@ -153,7 +153,13 @@ Date: 1007147938 Fri Nov 30 11:18:58 2001
 
 Perl 4.2
 	fixed Java.pm to work with Windows 2k
-Date: 1030473444 Tue Aug 27 11:37:24 2002
-Date: 1031073756 Tue Sep  3 10:22:36 2002
-Date: 1050360658 Mon Apr 14 15:50:58 2003
-Date: 1056475836 Tue Jun 24 10:30:36 2003
+
+1/19/04
+Java 5.0
+	put Java stuff into 'com.zzo.javaserver' package
+Java 4.6
+	fix test script
+
+
+	
+

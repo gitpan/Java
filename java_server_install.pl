@@ -29,7 +29,7 @@ if ($jhome)
     push @classpath, File::Spec->catdir($jar, 'JavaServer.jar');
 
     local($") = ":";
-	$line = "java -classpath @classpath JavaServer$CRLF";
+	$line = "java -classpath @classpath com.zzo.javaserver.JavaServer$CRLF";
 
     my $OS = $^O;
 	if ($OS =~ /mswin/i)
