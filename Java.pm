@@ -1,6 +1,12 @@
-# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.15 2003/04/14 22:50:51 mark Exp $
-# $Revision: 1.15 $
+# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.16 2003/06/24 17:28:48 mark Exp $
+# $Revision: 1.16 $
 # $Log: Java.pm,v $
+# Revision 1.16  2003/06/24 17:28:48  mark
+# - Correctly encode parameter value for static set_field calls
+# - 'die' instead of exit on authentication failure
+# - anchor 'false:b' regex in pretty_args
+# - try to make install more platform independent
+#
 # Revision 1.15  2003/04/14 22:50:51  mark
 # allow negative integers, test fix
 #
@@ -84,7 +90,7 @@ use vars qw ($AUTOLOAD @ISA $VERSION);
 require Exporter;
 @ISA = qw(Exporter);
 
-$VERSION = '4.4';
+$VERSION = '4.5';
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -170,11 +176,7 @@ sub _init
 	$line =~ s/\015//g;	# clean up input from Winblows
 	chomp $line;
 
-	unless ($line =~ 'OK')
-	{
-		print "$line\n";
-		exit 1;
-	}
+    die("Authentication Failed: $line") unless ($line =~ 'OK');
 
 	# Set to '-1' to disable events
 	if ($self->{event_port} > 0)
@@ -274,7 +276,8 @@ sub set_field
 	if ($self->_is_java)
 	{
 		# static object
-		$line = "SET $_[1]#$_[2](@_[3..@_])";
+		$line = "SET $_[1]#$_[2](@args[1..$#args])";
+        print "STATIC LINE: $line\n";
 	}
 	else
 	{
@@ -492,7 +495,7 @@ sub pretty_args
 			# If it looks like an INT it is an int...
 			$_ .= ":int";
 		}
-		elsif (/^true:b$/i || /^false:b/i)
+		elsif (/^true:b$/i || /^false:b$/i)
 		{
 			# Stick that 'oolean' @ the end of ':b'!
 			$_ .= "oolean";
