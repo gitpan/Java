@@ -112,3 +112,21 @@ Perl stuff up to 3.1 Java stuff the same
 			defined in Dealer.java (curently '___NULL___') & 'NUL'
 			value now correctly returned for null values
 			(same thing as functions that return void)
+
+7/10/01 
+Perl & Java both to 4.0
+4.0	Authorization additions - now a shared secret between server &
+		client can exist to allow the server to authorize
+		remote clients.  Hopefully this will open the door to
+		further security enhancements.
+	Event port usage can now be turned off by specifying an event_port
+		of '-1'
+	Callback objects can be created & used to allow Java to call Perl 
+		See the Java2Perl.java classfile and the java2perl directory
+		under 'examples' & Java.pm's perldoc
+	Thanks to Achim Settelmeier for the Auth & Callback Stuff! Good Job!
+	Added support for getting the last Exception object & a convenience
+		method for dumping its stack trace into a perl array via
+		the 'get_exception' and 'get_stack_trace' methods.  See the
+		perldoc.  Before all you could get was just the String-ified
+		message ('getMessage()') of the Exception.

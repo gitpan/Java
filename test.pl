@@ -39,16 +39,16 @@ $ok++;
 print "ok $ok\n";
 
 print "Set array field.\n";
-$array->set_field(3,"Mark Rulez");
+$array->[3] = "Mark Rulez";
 $ok++;
 print "ok $ok\n";
 print "Get length.\n";
-my $len = $array->get_length;
+my $len = $@{$array};
 $ok++;
 print "ok $ok\n";
 
 print "Get value.\n";
-my $vv =  $array->get_field(3)->get_value;
+my $vv =  $array->[3]->get_value;
 $ok++;
 print "ok $ok\n";
 #print "ARRAY: $vv $len\n";
@@ -67,7 +67,7 @@ $ok++;
 print "ok $ok\n";
 
 print "Cycle thru array values.\n";
-for (my $i = 0; $i < $constructor_array->get_length; $i++)
+for (my $i = 0; $i < $@{$constructor_array}; $i++)
 {
 	my $cons = $constructor_array->get_field($i);
 	my $val = $cons->get_value();

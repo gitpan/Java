@@ -1,3 +1,7 @@
+#
+# $Id: JavaArray.pm,v 1.2 2001/07/09 23:06:28 mark Exp $
+#
+
 package JavaArray;
 
 # Just keep track of java object
@@ -28,7 +32,6 @@ sub FETCHSIZE
 {
         my($self) = @_;
         $self->get_object->get_length;
-
 }
 
 sub STORESIZE

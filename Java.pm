@@ -1,6 +1,12 @@
-# $Header: /home/markt/goo/Java/Java.pm,v 1.2 2000/05/15 21:24:37 markt Exp $
+# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.2 2001/07/09 23:05:51 mark Exp $
 # $Revision: 1.2 $
 # $Log: Java.pm,v $
+# Revision 1.2  2001/07/09 23:05:51  mark
+# Clean up
+#
+# Revision 1.1.1.1  2001/07/09 22:33:57  mark
+# Initial Toss In
+#
 # Revision 1.2  2000/05/15 21:24:37  markt
 # This is da Big Daddy
 #
@@ -29,10 +35,12 @@ use JavaArray;
 # Now allow '==' to mimic 'same' functionality
 use overload '==' => "same", 'fallback' => 1;
 
-use vars qw ($AUTOLOAD @ISA);
+use vars qw ($AUTOLOAD @ISA $VERSION);
 
 require Exporter;
 @ISA = qw(Exporter);
+
+$VERSION = '4.0';
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -71,7 +79,7 @@ sub new
 #	supplied in 'new' arguments or use defaults
 #	'localhost', 2000 & 2001
 #
-#       Also it'll set 'use_tied_arrays' if specified.
+#       Also it'll use old-style arrays  if specified.
 sub _init
 {
 	my($self,%attrs) = @_;
@@ -79,7 +87,9 @@ sub _init
 	$self->{port} = $attrs{port} || 2000;
 	$self->{host} = $attrs{host} || "localhost";
 	$self->{event_port} = $attrs{event_port} || 2001;
-	$self->{use_tied_arrays} = $attrs{use_tied_arrays};
+
+	# It's now the default!
+	$self->{use_tied_arrays} = 1 unless $attrs{use_old_style_arrays};
 
 	##
 	# Set up them sockets!
@@ -98,44 +108,75 @@ sub _init
 	}
 	# Make sure we're autoflushed
 	$self->{socket}->autoflush(1);
-	
-	#
-	# Set up our event_socket server
-	#
-	$self->{event_server} = IO::Socket::INET->new
-		(
-			Listen => 5,
-			LocalPort => $self->{event_port},
-			Proto => 'tcp',
-			Reuse => 1
-		);
 
-	if (!$self->{event_server})
+	my $authSecret = "";
+
+	# Check for authorization file & use it!
+	if (defined($attrs{authfile}))
 	{
-		croak("Couldn't create event_server socket: $!");
+		open(AUTH,$attrs{authfile}) or croak("Could not open ".$attrs{authfile}.": $!\n");
+		$authSecret=<AUTH>;
+		close(AUTH);
+		chomp($authSecret);
 	}
 
-	# We wanna re-use the event server port in case of restart
-	setsockopt($self->{event_server}, SOL_SOCKET, SO_REUSEADDR, pack("l",1)) or croak "setsockopt: $!";
+	# Send Auth token
+	$self->{socket}->print("AUTH: ".$authSecret."\n");
+
+	# Check response
+	my $line = $self->{socket}->getline;
+	chomp $line;
+
+	if ($line ne 'OK')
+	{
+		print "$line\n";
+		exit 1;
+	}
+
+	# Set to '-1' to disable events
+	if ($self->{event_port} > 0)
+	{
+		#
+		# Set up our event_socket server
+		#
+		$self->{event_server} = IO::Socket::INET->new
+			(
+				Listen => 5,
+				LocalPort => $self->{event_port},
+				Proto => 'tcp',
+				Reuse => 1
+			);
+	
+		if (!$self->{event_server})
+		{
+			croak("Couldn't create event_server socket: $!");
+		}
+
+		# We wanna re-use the event server port in case of restart
+		setsockopt($self->{event_server}, SOL_SOCKET, SO_REUSEADDR, pack("l",1)) or croak "setsockopt: $!";
+	}
 
 	## Tell JavaServer what port we want our events on...
 	$self->{socket}->print($self->{event_port}."\n");
 
-	# Don't wanna do nuthin' until we hear from JavaServer on our
-	#	event_server port
-	my $peer_address;
-	($self->{event_socket}, $peer_address) = $self->{event_server}->accept;
+	if ($self->{event_port} > 0)
+	{
+		# Don't wanna do nuthin' until we hear from JavaServer on our
+		#	event_server port
+		my $peer_address;
+		($self->{event_socket}, $peer_address) = $self->{event_server}->accept;
+	
+		my($port, $iaddr) = sockaddr_in($peer_address);
+		$iaddr = inet_ntoa($iaddr);
+		#print STDERR "Event port connexion from $iaddr:$port!\n";
+	
+		# Don't wanna accept any more event_server connexions
+		undef $self->{event_server};
 
-	my($port, $iaddr) = sockaddr_in($peer_address);
-	$iaddr = inet_ntoa($iaddr);
-	print STDERR "Event port connexion from $iaddr:$port!\n";
-
-	# Don't wanna accept any more event_server connexions
-	undef $self->{event_server};
-
-	# AutoFlush this bad boy
-	#	We're only gonna use this monster to read events
-	$self->{event_socket}->autoflush(1);
+		# AutoFlush this bad boy
+		#	We're only gonna use this monster to read events
+		$self->{event_socket}->autoflush(1);
+	}
 }
 
 ###
@@ -153,6 +194,16 @@ sub create_object
 	#
 	# Create a new java object
 	#
+	$self->new_java_object($resp);
+}
+
+# Get callback object so server side can make perl calls
+sub get_callback_object
+{
+	my($self) = @_;
+
+	my $resp = $self->send_command_and_get_response("BCK");
+
 	$self->new_java_object($resp);
 }
 
@@ -289,7 +340,6 @@ sub send_line
 {
 	my($self,$line) = @_;
 	return if (!$self || !$line);
-#print STDERR "SENDING -$line-\n";
 	$self->get_socket->print("$line\n\n");
 }
 	
@@ -318,7 +368,17 @@ sub send_command_and_get_response
 
 		chomp $resp;	# clean up last newline
 
-		croak($resp) if ($resp =~ /^ERROR/);
+		# Pull out the Exception object if it's there
+		if ($resp =~ /ERROR/)
+		{
+			# Peel off Exception object if it's there
+			if ($resp =~ s/%%%(.*)$//)
+			{
+				# & keep track of it
+				$self->{last_exception} = $self->new_java_object($1);
+			}
+			croak($resp);
+		}
 
 		return $resp;
 	}
@@ -326,6 +386,34 @@ sub send_command_and_get_response
 	{
 		croak("Error sending $line");
 	}
+}
+
+# Gets the most recent Exception object
+sub get_exception
+{
+	my($self) = @_;
+	$self->{last_exception};
+}
+
+#
+# Does the nasty work for ya to get the Stack Trace for
+#	the most recent Exception
+# Returns array of stack trace lines
+#
+sub get_stack_trace
+{
+	my ($self) = @_;
+
+        my $exception_object = $self->get_exception;
+
+	# Get the Stack Trace - blame Java for this mess!
+        my $string_writer = $self->create_object("java.io.StringWriter");
+        my $print_writer = $self->create_object("java.io.PrintWriter", $string_writer);
+        $exception_object->printStackTrace($print_writer);
+
+	my $line = $string_writer->toString->get_value;
+	$line =~ s/\r//g;	# Get rid of Windows/Krapple nastiness
+	split(/\n/, $line);
 }
 
 ## This'll return an objectified field from a static or instantiated reference
@@ -461,7 +549,6 @@ sub create_raw_string
 
 	# Wait for response
 	my $resp = $self->get_socket->getline;
-	#print STDERR "got back $resp \n";
 
 	# Send bytes
 	local($") = " ";
@@ -576,6 +663,27 @@ sub base_call
 	@args = pretty_args(@args);
 
 	my $resp=$self->send_command_and_get_response("CAL $obj%$func(@args)");
+
+	# Handle a callback request
+	while ($resp =~ s/^CALLBACK //)
+	{
+		# eval it 
+		my $ret = eval("$resp");
+		if ($@)
+		{
+			chomp $@;
+
+			# Something went wrong - send a response back
+			$resp = $self->send_command_and_get_response($@);
+
+			# & tell someone
+			print STDERR "Remote callback failed: $@";
+		}
+
+		$ret ||= "";
+		$resp = $self->send_command_and_get_response($ret);
+	}
+
 	return $self->new_java_object($resp);
 }
 
@@ -598,6 +706,10 @@ sub same
 sub go
 {
 	my $self = shift;
+
+	# Mite not be using events
+	return if (!$self->get_event_socket);
+
 	my $READBITS = 0;
 	vec($READBITS,$self->get_event_socket->fileno,1) = 1;
 	my $nf = select(my $rb = $READBITS,undef,undef,0);
@@ -605,7 +717,6 @@ sub go
 	return if (!$nf);
 
 	my $line = $self->get_event_socket->getline;
-print STDERR "GOT LINE $line\n";
 	return if (!defined $line); 	# lost somebody
 
 	$self->decipher_event($line);
@@ -670,8 +781,8 @@ Java - Perl extension for accessing a JVM remotely or locally
   
   $array = $java->create_array("java.lang.String",5);
   // Set array element 3 to "Java is lame"
-  $array->set_field(3,"Java is lame");
-  $element = $array->get_field(3)->get_value();
+  $array->[3] = "Java is lame";
+  $element_value = $array->[3]->get_value();
 
   $button = $java->create_object("java.awt.Button","Push Me");
   // Listen for 'Action' events from $button object
@@ -717,19 +828,33 @@ The new call accepts a hash with the following keys:
 	port => port the JVM is listening on (JavaServer)
 			default is 2000
 	event_port => port that the remote JVM will send events to
-			default is 2001
-        use_tied_arrays => tells Java.pm whether to use 'tieds' Java 
-			arrays by default or not - see JavaArray.pm 
-			for more info on this exciting new feature!
-                        If set to true all array references will be 
-			'tied' to 'JavaArrays' allowing a more intuitive 
-			interface to them.  See the section on Arrays 
-			for more info also.
+			default is 2001.  If you specify '-1' for this
+			value then the event service will be turned off -
+			if you're not doing any GUI work this might be
+			a good idea as the second event port will NOT
+			get used/opened saving some system resources.
+	authfile => The path to a file whose first line is used as a 
+			shared 'secret' which will be passed to 
+			JavaServer.  To use this feature you must start 
+			JavaServer with the '--authfile=<filename>' 
+			command-line option.
+			If the secret words match access will be granted
+			to this client.  By default there is no shared
+			secret.  See the 'Authorization' section below.
+	use_old_style_arrays => tell Java.pm to use 'old-style' arrays
+			which you should NOT be using unless you need
+			backwards compatibility with 3.x Java.pm & 
+			earlier.  By default all arrays returned by 
+			JavaServer are 'tied' to the JavaArray class for 
+			easier perl-like manipulation.  See the 'Arrays' 
+			section futher down for more info.
 
 For example:
 
 	$java = new Java(host => "java.zzo.com", event_port => 4032);
-	$java2 = new Java(port => 8032, use_tied_arrays => 1);
+
+	# No events!
+	$java2 = new Java(port => 8032, event_port => -1);
 
 You can have any number of java 'environments' in a Perl program.
 
@@ -916,8 +1041,27 @@ string is:
 	ERROR: java.lang.Exception: some.java.Exception: <more info> at $0 line XX
 
 Note the '<more info>' part is the result of the getMessage() function
-of that Exception.  Everything after that is the stuff put in there by croak;
+of that Exception.  Everything after that is the 
+stuff put in there by croak;
 the filename & line number of your Perl program.
+
+=head2 get_exception
+
+The actual Exception object that was thrown is available via the
+'get_exception' function call.
+
+=head2 get_stack_trace
+
+There is also a convenience function 'get_stack_trace' which will return
+the Stack Trace as an array of lines from the most recent Exception thrown.
+To see how this is done 'Read The Code Luke' in Java.pm - basically
+it just gets the most recent Exception & creates an appropriate 
+PrintWriter into which it has Java dump the Stack Trace & then it just 
+returns the String-ifized version of it - something you can easily 
+(albiet messily) do yourself.
+
+=head1
+
 So here's what an Exception handler can look like:
 
 	my $I;
@@ -934,6 +1078,18 @@ So here's what an Exception handler can look like:
 		# Print just the Java stuff
 		print "$@\n";
 
+		# This is the actual NumberFormatException object
+		my $exception_object = $java->get_exception;
+
+		# There's also this new convenience routines to give
+		#	the Stack Trace as an array of lines
+		# This returns the Stack Trace from the most recent
+		#	Exception thrown 
+		my @stack_trace = $java->get_stack_trace;
+
+		local($") = "\n";
+		print "Stack Trace:\n@st\n";
+
 	}
 
 So in this example if the scalar $some_string did NOT contain a parsable
@@ -941,6 +1097,16 @@ integer - say 'dd' - the printed error message would be:
 
 	java.lang.Exception: java.lang.NumberFormatException: dd 
 
+	Stack Trace:
+	java.lang.Exception: java.lang.NumberFormatException: dd
+        	at Dealer.callFunction(Dealer.java:856)
+        	at Dealer.parse(Dealer.java:526)
+        	at Dealer.run(Dealer.java:425)
+
+
+You can most likely ignore all of the 'Dealer' stack frames as
+that is internal to JavaServer.  Of course dumping Stack Traces
+should only be used while you're debugging anyways!
 
 =head1 Comparing Java objects
 
@@ -1250,6 +1416,18 @@ For example:
 
 Note this will return an actual integer!  You do not need to call 'get_value' on 'get_length's return value!
 
+=head1 Authorization
+
+Using the 'authfile' key when creating the root Java object
+specifies a file whose first line is taken to be a password to
+be passed to the remote JavaServer to authenticate the connexion.
+JavaServer must be started with the '--authfile=<filename>'
+command-line option and the first line of that file must match
+to be granted access.  
+Note this is a _very_ basic form of authorization -
+to maximize it you should restrict the file permissions as much
+as possible (i.e. 0600).
+Thanks to Achim Settelmeier for the initial implementation!
 
 =head1 EXPORT
 

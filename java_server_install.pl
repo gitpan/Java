@@ -1,5 +1,5 @@
 print "This will attempt to install JavaServer.jar somewhere & then tell you\n";
-print "how to run it...\n";
+print "how to run it... hopefully!\n";
 
 my $jhome = $ENV{JAVA_HOME};
 my $OS = $^O;

@@ -11,8 +11,8 @@ SYNOPSIS
       
       $array = $java->create_array("java.lang.String",5);
       // Set array element 3 to "Java is lame"
-      $array->set_field(3,"Java is lame");
-      $element = $array->get_field(3)->get_value();
+      $array->[3] = "Java is lame";
+      $element_value = $array->[3]->get_value();
 
       $button = $java->create_object("java.awt.Button","Push Me");
       // Listen for 'Action' events from $button object
@@ -61,19 +61,33 @@ Creating the root Java object
             port => port the JVM is listening on (JavaServer)
                             default is 2000
             event_port => port that the remote JVM will send events to
-                            default is 2001
-            use_tied_arrays => tells Java.pm whether to use 'tieds' Java 
-                            arrays by default or not - see JavaArray.pm 
-                            for more info on this exciting new feature!
-                            If set to true all array references will be 
-                            'tied' to 'JavaArrays' allowing a more intuitive 
-                            interface to them.  See the section on Arrays 
-                            for more info also.
+                            default is 2001.  If you specify '-1' for this
+                            value then the event service will be turned off -
+                            if you're not doing any GUI work this might be
+                            a good idea as the second event port will NOT
+                            get used/opened saving some system resources.
+            authfile => The path to a file whose first line is used as a 
+                            shared 'secret' which will be passed to 
+                            JavaServer.  To use this feature you must start 
+                            JavaServer with the '--authfile=<filename>' 
+                            command-line option.
+                            If the secret words match access will be granted
+                            to this client.  By default there is no shared
+                            secret.  See the 'Authorization' section below.
+            use_old_style_arrays => tell Java.pm to use 'old-style' arrays
+                            which you should NOT be using unless you need
+                            backwards compatibility with 3.x Java.pm & 
+                            earlier.  By default all arrays returned by 
+                            JavaServer are 'tied' to the JavaArray class for 
+                            easier perl-like manipulation.  See the 'Arrays' 
+                            section futher down for more info.
 
     For example:
 
             $java = new Java(host => "java.zzo.com", event_port => 4032);
-            $java2 = new Java(port => 8032, use_tied_arrays => 1);
+
+            # No events!
+            $java2 = new Java(port => 8032, event_port => -1);
 
     You can have any number of java 'environments' in a Perl
     program.
@@ -263,7 +277,25 @@ Exceptions
     Note the '<more info>' part is the result of the getMessage()
     function of that Exception. Everything after that is the stuff
     put in there by croak; the filename & line number of your Perl
-    program. So here's what an Exception handler can look like:
+    program.
+
+  get_exception
+
+    The actual Exception object that was thrown is available via the
+    'get_exception' function call.
+
+  get_stack_trace
+
+    There is also a convenience function 'get_stack_trace' which
+    will return the Stack Trace as an array of lines from the most
+    recent Exception thrown. To see how this is done 'Read The Code
+    Luke' in Java.pm - basically it just gets the most recent
+    Exception & creates an appropriate PrintWriter into which it has
+    Java dump the Stack Trace & then it just returns the String-
+    ifized version of it - something you can easily (albiet messily)
+    do yourself.
+
+    So here's what an Exception handler can look like:
 
             my $I;
             eval
@@ -279,6 +311,18 @@ Exceptions
                     # Print just the Java stuff
                     print "$@\n";
 
+                    # This is the actual NumberFormatException object
+                    my $exception_object = $java->get_exception;
+
+                    # There's also this new convenience routines to give
+                    #       the Stack Trace as an array of lines
+                    # This returns the Stack Trace from the most recent
+                    #       Exception thrown 
+                    my @stack_trace = $java->get_stack_trace;
+
+                    local($") = "\n";
+                    print "Stack Trace:\n@st\n";
+
             }
 
     So in this example if the scalar $some_string did NOT contain a
@@ -286,6 +330,16 @@ Exceptions
     be:
 
             java.lang.Exception: java.lang.NumberFormatException: dd 
+
+            Stack Trace:
+            java.lang.Exception: java.lang.NumberFormatException: dd
+                    at Dealer.callFunction(Dealer.java:856)
+                    at Dealer.parse(Dealer.java:526)
+                    at Dealer.run(Dealer.java:425)
+
+    You can most likely ignore all of the 'Dealer' stack frames as
+    that is internal to JavaServer. Of course dumping Stack Traces
+    should only be used while you're debugging anyways!
 
 Comparing Java objects
     The '==' operator is now overloaded to provide this
@@ -591,6 +645,17 @@ Arrays - old style
 
     Note this will return an actual integer! You do not need to call
     'get_value' on 'get_length's return value!
+
+Authorization
+    Using the 'authfile' key when creating the root Java object
+    specifies a file whose first line is taken to be a password to
+    be passed to the remote JavaServer to authenticate the
+    connexion. JavaServer must be started with the '--
+    authfile=<filename>' command-line option and the first line of
+    that file must match to be granted access. Note this is a _very_
+    basic form of authorization - to maximize it you should restrict
+    the file permissions as much as possible (i.e. 0600). Thanks to
+    Achim Settelmeier for the initial implementation!
 
 EXPORT
     None by default.

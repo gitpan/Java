@@ -1,14 +1,17 @@
 #!/home/markt/bin/perl -w
 use strict;
 no strict 'subs';
-#use lib '/home/markt/goo/Java';
+use lib '/home/mark/goo/Java';
 use Java;
 
 #
 # Using NEW array interface!!
 #
 
-my $java = new Java(use_tied_arrays=>1);
+my $java = new Java(use_tied_arrays=>1,
+			event_port=>'-1',
+#			authfile=>"secret"
+			);
 
 my $array = $java->create_array("java.lang.String",5);
 my $ll = $#{$array};
@@ -51,6 +54,17 @@ print $ln->get_value,"\n";
 ## Primitive array
 my $prim_array = $java->create_array("int",3);
 $prim_array->[2] = 0;
+
+my @tied_array;
+my $test_obj = $java->create_object("Test","Mark Rox");
+print "Created Test object ",$test_obj->get->get_value,"\n";
+my $arr = $test_obj->getArr;
+for (my $i = 0; $i < @$arr; $i++)
+{
+	print "Val is ",$arr->[$i]->get_value,"\n";
+}
+
+
 
 # NEW [Ljava.lang.reflect.Constructor;(5 (,34,2,3,2))
 # GET [Ljava.lang.reflect.Constructor;^3#2

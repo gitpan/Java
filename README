@@ -5,6 +5,29 @@ See 'Changes' files for the latest & greatest!
 See below for instructions on how to install on a Windows box running
 ActiveState Perl.
 
+Once again a major version change meaning the 4.x is NOT backwards
+compatibile with previous JavaServer versions.  The 4.x stuff gives
+you very basic authorization, ability to turn off the event_port if
+you're not doing GUI work, and 'callbacks' that allow your Java classes
+to make Perl calls.  Also in 4.x 'use_tied_arrays' is now the default,
+to use 'old-style' array handling you have to say 'use_old_style_arrays=>1'
+in your constructor - which you really should not be using anymore!
+Again check out the 'Changes' file and the perldoc and a new examples
+directory called 'java2perl' for some callback examples.
+WARNING:  the callback infrastructure is EXPERIMENTAL - use at your
+own risk & let me know how it goes.  
+Big Thanks to Achim Settelmeier for the Callback & Authorization stuff -
+keep that twisted mind working!
+
+DON'T FORGET - If you recompile any Java classes that JavaServer is using
+you MUST STOP AND RESTART JavaServer so it will pick up your changes!!
+
+Good Idea Department:
+If you stick all of your Java classes you use with JavaServer into one
+directory the startup script for JavaServer will be much simpler since
+you won't have to fiddle with the CLASSPATH all the time since all of your
+stuff will be in one spot - always.
+
 Version 3.x of JavaServer & Java.pm are NOT backwards compatible!!!
 You MUST use a 3.x version of JavaServer with a 3.x version of Java.pm
 & same for 2.x and 1.x versions!
