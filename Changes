@@ -1,0 +1,6 @@
+Revision history for Perl extension Java.
+
+1.0  Fri Apr 28 16:36:29 2000
+	- original version; created by h2xs 1.20 with options
+		-X -n Java -v 1.0
+
