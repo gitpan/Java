@@ -1,6 +1,16 @@
-# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.9 2001/08/01 21:53:08 mark Exp $
-# $Revision: 1.9 $
+# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.12 2001/11/30 19:18:52 mark Exp $
+# $Revision: 1.12 $
 # $Log: Java.pm,v $
+# Revision 1.12  2001/11/30 19:18:52  mark
+# Windows fix
+#
+# Revision 1.11  2001/08/13 18:36:08  mark
+# Make the auth secret stuff work w/Winblows & Krapple by getting rid of
+# '\015' chars @ end of line
+#
+# Revision 1.10  2001/08/02 16:05:14  mark
+# Fix for Windows authentication
+#
 # Revision 1.9  2001/08/01 21:53:08  mark
 # version to 4.1.1
 #
@@ -63,7 +73,7 @@ use vars qw ($AUTOLOAD @ISA $VERSION);
 require Exporter;
 @ISA = qw(Exporter);
 
-$VERSION = '4.1.1';
+$VERSION = '4.2';
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -72,9 +82,6 @@ $VERSION = '4.1.1';
 # This allows declaration	use Java ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
-
-# NOT COMPATIBLE with any 1.x versions!!!
-my $VERSION = '2.2';
 
 # Extremely cheesy
 use constant PARAMETER_SEPARATOR => "";
@@ -140,6 +147,7 @@ sub _init
 		open(AUTH,$attrs{authfile}) or croak("Could not open ".$attrs{authfile}.": $!\n");
 		$authSecret=<AUTH>;
 		close(AUTH);
+		$authSecret =~ s/\015//g;	# clean up input from Winblows
 		chomp($authSecret);
 	}
 
@@ -148,9 +156,10 @@ sub _init
 
 	# Check response
 	my $line = $self->{socket}->getline;
+	$line =~ s/\015//g;	# clean up input from Winblows
 	chomp $line;
 
-	if ($line ne 'OK')
+	unless ($line =~ 'OK')
 	{
 		print "$line\n";
 		exit 1;
@@ -174,9 +183,6 @@ sub _init
 		{
 			croak("Couldn't create event_server socket: $!");
 		}
-
-		# We wanna re-use the event server port in case of restart
-		setsockopt($self->{event_server}, SOL_SOCKET, SO_REUSEADDR, pack("l",1)) or croak "setsockopt: $!";
 	}
 
 	## Tell JavaServer what port we want our events on...
@@ -189,8 +195,8 @@ sub _init
 		my $peer_address;
 		($self->{event_socket}, $peer_address) = $self->{event_server}->accept;
 	
-		my($port, $iaddr) = sockaddr_in($peer_address);
-		$iaddr = inet_ntoa($iaddr);
+		#my($port, $iaddr) = sockaddr_in($peer_address);
+		#$iaddr = inet_ntoa($iaddr);
 		#print STDERR "Event port connexion from $iaddr:$port!\n";
 	
 		# Don't wanna accept any more event_server connexions
@@ -340,6 +346,7 @@ sub send_line
 {
 	my($self,$line) = @_;
 	return if (!$self || !defined($line));
+	print "Sending line: $line\n" if $DEBUG;
 	$self->get_socket->print("$line\n\n");
 }
 	
