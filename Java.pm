@@ -789,6 +789,44 @@ Set an instantiated field
 
 	$obj->set_field("integer_field_name",400);
 
+=head2 Exceptions
+
+Currently Java.pm will 'croak' when an Exception is encountered in JavaServer.
+So the way to deal with them is to enclose your Java expression that might
+throw an exception in an 'eval' block & then check the $@ variable to see
+if an Exception was indeed thrown.  You then need to parse the $@ variable
+to see exactly what Exception was thrown.  Currently the format of the $@
+string is: 
+
+	ERROR: java.lang.Exception: some.java.Exception: <more info> at $0 line XX
+
+Note the '<more info>' part is the result of the getMessage() function
+of that Exception.  Everything after that is the stuff put in there by croak;
+the filename & line number of your Perl program.
+So here's what an Exception handler can look like:
+
+	my $I;
+	eval
+	{
+		$I = $java->java_lang_Integer("parseInt","$some_string:string");
+	};
+	if ($@)
+	{
+		# An exception was thrown!!
+		$@ =~ s/ERROR: //;	# Gets rid of 'ERROR: '
+		$@ =~ s/at $0.*$//;	# Gets rid of 'croak' generated stuff
+
+		# Print just the Java stuff
+		print "$@\n";
+
+	}
+
+So in this example if the scalar $some_string did NOT contain a parsable
+integer - say 'dd' - the printed error message would be:
+
+	java.lang.Exception: java.lang.NumberFormatException: dd 
+
+
 =head2 Comparing Java objects
 
 You can see if two references to java objects actually point to the same

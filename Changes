@@ -22,3 +22,36 @@ Revision history for Perl extension Java.
 		THIS CHANGE MEANS NEITHER JAVASERVER NOR JAVA.PM ARE
 			COMPATIBLE WITH ANY 1.X RELEASE!!
 		(hence the bump up of the major version number!)
+
+Java stuff got updated to 2.1 - Perl stuff still at 2.0
+        1/24/01
+        - Included Andreas Leue's code to statically start and stop
+                JavaServer from within an already-running Java app
+                Check out 'test_test.pl' in the Perl examples directory
+                so see what this looks like on the Perl side.  Pretty
+                much the same!
+                On the Java side you can now use 'JavaServer.start()',
+                or 'JavaServer.start(int port)' to specify a port other
+                than 2000 to programmatically start JavaServer & you
+                similarly use 'JavaServer.stop()' to stop the madness
+                when you've had enough fun.
+                Like:
+
+                public class MyApp
+                {
+                        public static void main(String args[])
+                        {
+                                // Allow JavaServer to 'hook' into
+                                //      your running program
+                                JavaServer.start();
+
+
+                                // Do whatever yer program does
+
+                                // Done
+                                JavaServer.stop();
+                        }
+                }
+        - Fixed stupid bug about the MANIFEST file looking for Java.jar
+                when it's really called JavaServer.jar
+                

@@ -6,5 +6,6 @@ test.pl
 TODO
 BUGS
 README
-Java.jar
+JavaServer.jar
 java_server_install.pl
+Java.perldoc.txt
