@@ -89,3 +89,10 @@ Both Perl & Java stuff moved up to 3.0
 	- Should ONLY effect multi-line String processing BUT since the
 		protocol itself has changed yer gonna need 3.x versions so
 		they can understand each other.
+Perl stuff up to 3.1 Java stuff the same
+	5/16/01
+	- AUTOLOAD function now correctly recognizes if it's dealing with
+		a static or instantiated method call - THEREFORE you can now
+		call instantiated functions with '_'s in their names.
+	- Also threw in some reorg of how functions get called to isolate
+		the code.

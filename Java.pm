@@ -18,14 +18,16 @@ require 5;
 use Socket;
 use Symbol;
 use Carp;
+
+# NOTE - you may have to 'use IO::Socket::INET' if yer perl install
+#	is cracked...
 use IO::Socket;
+
+# Fancy pants array stuff
 use JavaArray;
 
 # Now allow '==' to mimic 'same' functionality
 use overload '==' => "same", 'fallback' => 1;
-
-# NOTE - you may have to 'use IO::Socket::INET' if yer perl install
-#	is cracked...
 
 use vars qw ($AUTOLOAD @ISA);
 
@@ -516,30 +518,27 @@ sub DESTROY
 sub AUTOLOAD
 {
 	my($self,@args) = @_;
-	local($") = PARAMETER_SEPARATOR;
 	my ($func) = $Java::AUTOLOAD =~ /::(.+)$/;
-	my $obj;
+	my @goo;
 
-	if ($func =~ /_/)
+	# it's a static call UNLESS $self is an instantiated class
+	if ($func =~ /_/ && !$self->{java})
 	{
-		# it's a static call
 		# called like $java->java_lang_Class("forName","java.lang.String");
+		# Pull out object name
+		my $obj;
 		($obj = $func) =~ s/_/\./g;
-		$func = shift @args;
-		
+		push @goo, $obj;
 	}
 	else
 	{
 		# regular method call
 		# called like $frame->setSize(200,200);
-		$obj = $self->{name};
+		# Pull out object name & function name
+		push @goo, $self->{name}, $func;
 	}
 
-	# Make args java-friendly
-	@args = pretty_args(@args);
-		
-	my $resp=$self->send_command_and_get_response("CAL $obj%$func(@args)");
-	return $self->new_java_object($resp);
+	return base_call($self,@goo,@args);
 }
 
 #
@@ -549,6 +548,18 @@ sub AUTOLOAD
 # $java->static_call("MyStaticClass","function_name","param1","param2"....);
 #
 sub static_call
+{
+	return base_call(@_);
+}
+
+# wrapper routine for instantiated calls
+sub call
+{
+	my $self = shift;
+	return base_call($self,$self->{name},@_);
+}
+
+sub base_call
 {
 	my($self,$obj,$func,@args) = @_;
 	local($") = PARAMETER_SEPARATOR;
@@ -789,7 +800,12 @@ For example:
 	$frame->show();  (or $frame->show)
 
 Note functions that don't take any parameters don't need the parentheses!
+Alternatively you can use the 'call' function to make method calls:
 
+	$frame->call('setSize', 500,500);
+	$frame->call('show');
+
+But that's no fun!
 	
 To call static functions the syntax is slightly different.
 
