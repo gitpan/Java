@@ -15,3 +15,10 @@ Revision history for Perl extension Java.
 		classes NOT in packages.
 1.14
 	- Just setsockopt SO_REUSEADDR on Java.pm event_server port
+2.0
+	8/23/00
+	- Now using ctrl-A to separate parameter lists so we can accept
+		commas or any other printable character in strings.
+		THIS CHANGE MEANS NEITHER JAVASERVER NOR JAVA.PM ARE
+			COMPATIBLE WITH ANY 1.X RELEASE!!
+		(hence the bump up of the major version number!)

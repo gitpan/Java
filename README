@@ -1,5 +1,12 @@
 Welcome to the Frightening World of Java/Perl interoperability!
 
+See below for instructions on how to install on a Windows box running
+ActiveState Perl.
+
+Version 2.x of JavaServer & Java.pm are NOT backwards compatible!!!
+You MUST use a 2.x version of JavaServer with a 2.x version of Java.pm
+& same for 1.x versions!
+
 There are two parts to this:
 1. The 'Backend' - which is contained in 'Java.jar'.  The backend must be
 running for the 'Frontend' (part #2) to work.  Run 'install_java_server.pl'
@@ -47,3 +54,12 @@ detect that Swing isn't available and use 'EventListener' rather than
 Swing events.
 
 A great place to look is the 'test.pl' script and in the 'examples' directory.
+
+ACTIVESTATE USERS
+Thanks to John Z. for this info:
+1. to install under activeperl, users needs to download nmake15. and use 
+the nmake instead of make on the usual perl install. location of 
+nmake15.exe is under ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
+instrtuction on how its used with activestate modules is 
+www.activestate.com/Products/ActivePerl/docs/faq/ActivePerl-faq2.html
+

@@ -1,7 +1,8 @@
-#!/home/markt/bin/perl -w
+#!/home/markt/usr/local/Linux/bin/perl -w
 
 use strict;
 no strict 'subs';
+use lib '/home/markt/goo/Java';
 use Java;
 
 my $awt = "java.awt";
@@ -9,7 +10,7 @@ my $swing = "javax.swing";
 
 my $java = new Java();
 
-my $win = $java->create_object("$swing.JFrame","Message");
+my $win = $java->create_object("$swing.JFrame","Color Chooser, Comma Test!");
 
 my $content_pane = $win->getContentPane;
 

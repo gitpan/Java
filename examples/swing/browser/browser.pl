@@ -25,7 +25,7 @@ my $current_page = "http://www.zzo.com/Java/getit.html";
 push @previous_pages, $current_page;
 
 # Create the window and a Panel
-$frame = $java->create_object("$swing.JFrame","I'll Call Him..... Mini-Browser");
+$frame = $java->create_object("$swing.JFrame","I'll Call Him, Mini-Browser");
 
 #
 # Get default and 'hand' cursor to change cursor when ya move it over

@@ -18,7 +18,7 @@ require 5;
 use Socket;
 use Symbol;
 use Carp;
-use IO::Socket;
+use IO::Socket::INET;
 
 use vars qw ($AUTOLOAD @ISA);
 
@@ -33,8 +33,11 @@ require Exporter;
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 
-my $VERSION = '1.14';
+# NOT COMPATIBLE with any 1.x versions!!!
+my $VERSION = '2.0';
 
+# Extremely cheesy
+use constant PARAMETER_SEPARATOR => "";
 
 # Preloaded methods go here.
 sub new
@@ -131,7 +134,7 @@ sub create_object
 	# pretty up the arguments for java-land
 	@args = pretty_args(@args);
 
-	local($") = ",";
+	local($") = PARAMETER_SEPARATOR;
 	my $resp = $self->send_command_and_get_response("NEW $what(@args)");
 	#
 	# Create a new java object
@@ -145,7 +148,7 @@ sub create_array
 	my($self,$what,@indicies) = @_;
 	
 	# We don't need to pretty args here....  all assumed to be ints
-	local($") = ",";
+	local($") = PARAMETER_SEPARATOR;
 	my $resp = $self->send_command_and_get_response("NEW [L$what;(@indicies)");
 	$self->new_java_object($resp);
 }
@@ -158,7 +161,7 @@ sub set_field
 	# pretty up the arguments for java-land
 	@args = pretty_args(@args);
 
-	local($") = ",";
+	local($") = PARAMETER_SEPARATOR;
 	my $line;
 
 	# Figure out what we're dealing with...
@@ -466,7 +469,7 @@ sub DESTROY
 sub AUTOLOAD
 {
 	my($self,@args) = @_;
-	local($") = ",";
+	local($") = PARAMETER_SEPARATOR;
 	my ($func) = $Java::AUTOLOAD =~ /::(.+)$/;
 	my $obj;
 
