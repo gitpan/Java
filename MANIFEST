@@ -17,9 +17,7 @@ examples/fetch.pl
 examples/secret
 examples/server.pl
 examples/shift_jis.pl
-examples/singleton.pl
 examples/static.pl
-examples/static2.pl
 examples/string.pl
 examples/test_test.pl
 examples/thread.pl

@@ -2,7 +2,7 @@
 
 use Java;
 
-my $java = new Java(host=>"laggard");
+my $java = new Java;
 #my $min_value = $java->get_field("java.lang.Byte","MIN_VALUE")->get_value;
 #my $max_value = $java->get_field("java.lang.Byte","MAX_VALUE")->get_value;
 #print "$min_value - $max_value\n";

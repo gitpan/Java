@@ -1,6 +1,15 @@
-# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.6 2001/07/20 22:39:44 mark Exp $
-# $Revision: 1.6 $
+# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.9 2001/08/01 21:53:08 mark Exp $
+# $Revision: 1.9 $
 # $Log: Java.pm,v $
+# Revision 1.9  2001/08/01 21:53:08  mark
+# version to 4.1.1
+#
+# Revision 1.8  2001/08/01 21:51:38  mark
+# Fixed generic handling of pulling out instance data from 'java' object
+#
+# Revision 1.7  2001/07/29 21:18:37  mark
+# VERSION up to 4.1
+#
 # Revision 1.6  2001/07/20 22:39:44  mark
 # Allow blank lines for callbacks
 #
@@ -54,7 +63,7 @@ use vars qw ($AUTOLOAD @ISA $VERSION);
 require Exporter;
 @ISA = qw(Exporter);
 
-$VERSION = '4.1';
+$VERSION = '4.1.1';
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -584,7 +593,6 @@ sub do_event
 sub DESTROY
 {
 	my($self) = shift;
-	#print STDERR "DES: ",$self->{name},"\n";
 	if ($self->_is_java)
 	{
 		# Entire Java hash going out of scope
@@ -758,11 +766,13 @@ sub _get_in_java
 	my($self,$what) = @_;
 	if ($self->_is_java)
 	{
-		return $self->{$what}
+		return $self if ($what eq 'java' && !$self->{java});
+		return $self->{$what};
 	}
 	else
 	{
-		return $self->{java}->{$what}
+		return $self->{java} if ($what eq 'java');
+		return $self->{java}->{$what};
 	}
 }
 
@@ -781,7 +791,7 @@ sub _set_in_java
 
 sub _is_java
 {
-	shift->{java};
+	shift->{socket};
 }
 
 # Autoload methods go after =cut, and are processed by the autosplit program.

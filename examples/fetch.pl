@@ -17,29 +17,27 @@ my $java = new Java();
 my $object = $java->create_object("java.net.URL",$page)->openConnection->getContent;
 
 my $array = $java->create_array("byte",5000);
-my $v = $array->get_value;
-print "ARRAY: $v\n";
 
 # Read into entire byte array 
 my $back = $object->read($array);
 my $val = $back->get_value;
 print "got back $val chars\n";
 
-my $len = $array->get_length;
+my $len = $#{$array};
 print "array length $len bytes\n";
 for (my $i = 0; $i < $val; $i++)
 {
-	print chr($array->get_field($i)->get_value);
+	print chr($array->[$i]->get_value);
 }
 
 my $a2 = $java->create_array("double",630);
 for (my $i = 0, my $index = 0; $i < 2*3.14159; $i += .01, $index++)
 {
 	print "Setting $index to $i\n";
-	$a2->set_field($index,"$i:double");
+	$a2->[$index] = "$i:double";
 }
 for (my $index = 0; $index < 630; $index++)
 {
-	my $val = $a2->get_field($index)->get_value;
+	my $val = $a2->[$index]->get_value;
 	print "Float value $index: $val\n";
 }

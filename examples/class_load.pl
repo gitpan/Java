@@ -11,14 +11,11 @@ my $java = new Java();
 #exit;
 my $class = $java->java_lang_Class("forName","Test");
 my $constructors = $class->getConstructors();
-my $v = $constructors->{name};
+#my $v = $constructors->name;
 my $test_obj = $class->newInstance();
 my $val = $test_obj->get->get_value;
+my $v;
 print "GOT: $v $val\n";
-
-my $val3 = $java->get_field("TestI","two_long")->get_value;
-#my $val3 = $int->get_field('ErErrSetup')->get_value;
-print "GOT: $val3\n";
 
 # use new 'call' method
 my $val2 = $test_obj->call("get_string")->get_value;

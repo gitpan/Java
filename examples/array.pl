@@ -1,7 +1,7 @@
 #!/home/markt/bin/perl -w
 use strict;
 no strict 'subs';
-use lib '/home/mark/goo/Java';
+use lib '..';
 use Java;
 
 #
@@ -9,9 +9,10 @@ use Java;
 #
 
 my $java = new Java(use_tied_arrays=>1,
-			event_port=>'-1',
+#			event_port=>'-1',
 #			authfile=>"secret"
 			);
+#my $java = new Java;
 
 my $array = $java->create_array("java.lang.String",5);
 my $ll = $#{$array};
