@@ -7,4 +7,5 @@ WriteMakefile(
     'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
     'PPM_INSTALL_EXEC'	=> 'perl',
     'PPM_INSTALL_SCRIPT'=> 'java_server_install.pl',
+	'EXE_FILES'	=> 'java_server_install.pl',
 );

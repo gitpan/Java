@@ -1,5 +1,6 @@
 Changes
 Java.pm
+JavaArray.pm
 MANIFEST
 Makefile.PL
 test.pl

@@ -1,4 +1,6 @@
 Welcome to the Frightening World of Java/Perl interoperability!
+ 
+See 'Changes' files for the latest & greatest!
 
 See below for instructions on how to install on a Windows box running
 ActiveState Perl.
@@ -13,12 +15,12 @@ Java code bundled with Java-2.1 - basically addition of static start
 applications easier.  Thanks to Andreas Leue!
 
 There are two parts to this:
-1. The 'Backend' - which is contained in 'Java.jar'.  The backend must be
+1. The 'Backend' - which is contained in 'JavaServer.jar'.  The backend must be
 running for the 'Frontend' (part #2) to work.  Run 'install_java_server.pl'
 to get this part going.  The 'main' Java class is called 'JavaServer' so
 you end up running the thing as 'java -classpath <classpath> JavaServer'
 JavaServer listens on a port for incoming connexions from Frontends - you
-can alter the default port of 2000 by specifying it on the command line link:
+can alter the default port of 2000 by specifying it on the command line like:
 java -classpath <classpath> JavaServer 8000
 Will start the server listening on port 8000.  You would then need to tell
 the Java Perl module to connect to port 8000 instead of the default like:
@@ -31,7 +33,7 @@ First be sure to run 'install_java_server.pl' to get your JavaServer environment
 set up and happy.
 Make sure 'JavaServer' is up and running before you try to run any tests!
 
-Basically you just need to add 'Java.jar' to your classpath on the 'java'
+Basically you just need to add 'JavaServer.jar' to your classpath on the 'java'
 command line (which unfortunately forces you to also add in classes.zip
 manually).  Run the 'install_java_server.pl' and it will create a shell
 or batch file for you (most likely) - or at least tell you what you need to

@@ -18,7 +18,14 @@ require 5;
 use Socket;
 use Symbol;
 use Carp;
-use IO::Socket::INET;
+use IO::Socket;
+use JavaArray;
+
+# Now allow '==' to mimic 'same' functionality
+use overload '==' => "same", 'fallback' => 1;
+
+# NOTE - you may have to 'use IO::Socket::INET' if yer perl install
+#	is cracked...
 
 use vars qw ($AUTOLOAD @ISA);
 
@@ -34,7 +41,7 @@ require Exporter;
 # will save memory.
 
 # NOT COMPATIBLE with any 1.x versions!!!
-my $VERSION = '2.0';
+my $VERSION = '2.2';
 
 # Extremely cheesy
 use constant PARAMETER_SEPARATOR => "";
@@ -59,6 +66,8 @@ sub new
 #
 #	supplied in 'new' arguments or use defaults
 #	'localhost', 2000 & 2001
+#
+#       Also it'll set 'use_tied_arrays' if specified.
 sub _init
 {
 	my($self,%attrs) = @_;
@@ -66,6 +75,7 @@ sub _init
 	$self->{port} = $attrs{port} || 2000;
 	$self->{host} = $attrs{host} || "localhost";
 	$self->{event_port} = $attrs{event_port} || 2001;
+	$self->{use_tied_arrays} = $attrs{use_tied_arrays};
 
 	##
 	# Set up them sockets!
@@ -148,7 +158,8 @@ sub create_array
 	my($self,$what,@indicies) = @_;
 	
 	# We don't need to pretty args here....  all assumed to be ints
-	local($") = PARAMETER_SEPARATOR;
+	#	and need to be separated by commans NOT PARAMETER_SEPARATOR
+	local($") = ",";
 	my $resp = $self->send_command_and_get_response("NEW [L$what;(@indicies)");
 	$self->new_java_object($resp);
 }
@@ -221,7 +232,24 @@ sub new_java_object
 	}
 
 	#print STDERR "Created Java Object $line\n";
-	bless { name => $line, java => $java }, ref $self
+	my $obj = (bless { name => $line, java => $java }, ref $self);
+
+        #
+        # If we're using the tied array syntax convert this guy into
+        #       a tied array IF INDEED it is an array that is!
+        #
+        if ($java->{use_tied_arrays})
+        {
+                if ($line =~ /^\[/)
+                {
+                        my @java_object;
+                        tie @java_object, 'JavaArray', $obj;
+                        return \@java_object;
+                }
+        }
+
+        # Otherwise just return the thang
+        return $obj;
 }
 
 # Gets the client socket
@@ -349,6 +377,14 @@ sub pretty_args
 		}
 		elsif (ref $_)
 		{
+                        # It's a JavaArray - we get the actual underlying
+                        #       'Java' object by pop'ing the array...
+                        #       who knew?
+                        if (ref $_ eq 'ARRAY')
+                        {
+                                $_ = pop @$_;
+                        }
+
 			# It's a Java object already
 			$_ = $_->{name};
 		}
@@ -460,6 +496,7 @@ sub DESTROY
 	{
 		# Entire Java hash going out of scope
 		$self->{socket}->close() if ($self->{socket});
+	        $self->{event_socket}->close() if ($self->{event_socket});
 	}
 }
 
@@ -504,6 +541,7 @@ sub AUTOLOAD
 sub static_call
 {
 	my($self,$obj,$func,@args) = @_;
+	local($") = PARAMETER_SEPARATOR;
 
 	# Make args java-friendly
 	@args = pretty_args(@args);
@@ -636,7 +674,7 @@ events & all the nonsense you can do in Java - from Perl!
 =head2 Starting a JVM server
 
 First you must run 'JavaServer' on the machine to which you will make
-connections.  Simply to a 'java JavaServer' to start the server.  By default
+connections.  Simply do a 'java JavaServer' to start the server.  By default
 it will start listening on port 2000.  Make sure the 'JavaServer.jar' is in your classpath - also make sure the Swing stuff (JFC if you prefer) is in your classpath as well if you want to use Swing stuff (note this does not apply to JVM 1.2+).
 
 =head2 Creating the root Java object
@@ -650,11 +688,17 @@ The new call accepts a hash with the following keys:
 			default is 2000
 	event_port => port that the remote JVM will send events to
 			default is 2001
+        use_tied_arrays => tells Java.pm whether to use 'tieds' Java arrays
+                        by default or not - see JavaArray.pm for more info
+                        on this exciting new feature!
+                        If set to true all array references will be 'tied' to
+                        'JavaArrays' allowing a more intuitive interface to
+                        them.  See the section on Arrays for more info also.
 
 For example:
 
 	$java = new Java(host => "java.zzo.com", event_port => 4032);
-	$java2 = new Java(port => 8032);
+	$java2 = new Java(port => 8032, use_tied_arrays => 1);
 
 You can have any number of java 'environments' in a Perl program.
 
@@ -829,6 +873,20 @@ integer - say 'dd' - the printed error message would be:
 
 =head2 Comparing Java objects
 
+The '==' operator is now overloaded to provide this functionality!  Woohoo!
+So you can now say stuff like:
+
+	if ($object1 == $object2)
+	{
+		#They're the same!
+	}
+	else
+	{
+		#Not!
+	}
+
+Here's the old (other) way of doing the exact same thing:
+
 You can see if two references to java objects actually point to the same
 object by using the 'same' function like:
 
@@ -849,8 +907,9 @@ Events are passed from the remote JVM to Perl5 via a separate event port.
 To enable events on an object use the 'do_event' function.  Your callback
 function will receive the object that caused the event as its first
 parameter and the event object itself as the second parameter.  Here's where
-ya wanna use the 'same' function to see what object caused this event if
-you set up multiple objects to call the same event function.
+ya wanna use the 'same' function (or the new overloaded '==' operator)
+to see what object caused this event if you set up multiple objects to call 
+the same event function.
 
 For example:
 
@@ -915,7 +974,9 @@ Here's what an event handler looks like:
 	sub event_handler
 	{
 		my($object,$event) = @_;
-		if ($object->same($frame))
+		if ($object->same($frame))	# Old sytle
+			OR
+		if ($object == $frame)		# New style!
 		{
 			# Event caused by our frame object!
 	
@@ -931,7 +992,9 @@ Here's what an event handler looks like:
 				$object->dispose;
 			}
 		}
-		if ($object->same($button))
+		if ($object->same($button))  	# old style
+			OR
+		if ($object == $button)		# new style!
 		{
 			print "You Pushed My Button!\n";
 		}
@@ -1035,7 +1098,45 @@ For example:
 		# now you're comparing actual strings...
 	}
 	
-=head2 Arrays
+
+=head2 Arrays - new style!
+
+Arrays are created with the 'create_array' function call.  It needs a
+fully-qualified java object or primitive name and a dimension.
+
+        If you specified 'use_tied_arrays' in your constructor to Java.pm
+        (& I think you should unless you have to perserve backwards 
+        compatibility...) all Java array references will be 'tied' to the
+        JavaArray class allowing a more intuitive interface to your array.
+
+        All array references will be _references_ to these objects.  
+        Here's how it looks (compare with 'old style' below):
+
+	# This will create a char array with 100 elements
+        #       (this is the same)
+	my $array  = $java->create_array("java.lang.String",100);
+
+        # Now it gets interesting!
+	# Don't forget on primitive arrays to use the ':' notation!
+	$array->[22] = "Mark rules the free world";
+
+	# Get element #99
+	my $element_99 = $array->[99];
+
+To get the length or size of an array do what you'd expect (I hope!)
+
+For example:
+
+	my $length = scalar (@$array);
+	my $size = $#{@array};
+
+        (remember you get an arrayref there sonny...)
+
+To pass as a function parameter just pass it in as normal:
+
+        my $list = $java->java_util_Arrays("asList",$array);
+
+=head2 Arrays - old style
 
 Arrays are created with the 'create_array' function call.  It needs a
 fully-qualified java object or primitive name and a dimension.

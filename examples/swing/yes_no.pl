@@ -2,6 +2,7 @@
 
 use strict;
 no strict 'subs';
+use lib '/home/mark/goo/Java';
 use Java;
 
 my $awt = "java.awt";
@@ -71,9 +72,12 @@ sub event
 {
 	my($object,$event) = @_;
 
+print "GOT EVENT: $object\t$event\n";
+
 	my $label = $object->getLabel->get_value;
 
-	if ($object->same($yesButton))
+	#if ($object->same($yesButton))
+	if ($object == $yesButton)
 	{
 		print "Yes Button!  Label: $label\n";
 	}

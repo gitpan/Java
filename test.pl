@@ -119,6 +119,7 @@ $frame->show();
 $ok++;
 print "ok $ok\n";
 
+print "Frame1 is $frame->{name}\n";
 print "Set up Window Events.\n";
 $java->do_event($frame,"addWindowListener",\&event);
 $ok++;
@@ -135,7 +136,7 @@ $ok++;
 print "ok $ok\n";
 
 print "Show dialog.\n";
-$dialog->show();
+#$dialog->show();
 $ok++;
 print "ok $ok\n";
 
@@ -180,6 +181,7 @@ sub event
 	# Used to discern what window event happened
 	my $val = $event->getID->get_value;
 
+print "Got event $event on $object\n";
 	if ($object->same($frame))
 	{
 		print "Event on Frame 1: ";

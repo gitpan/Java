@@ -1,4 +1,4 @@
-print "This will attempt to install Java.jar somewhere & then tell you\n";
+print "This will attempt to install JavaServer.jar somewhere & then tell you\n";
 print "how to run it...\n";
 
 my $jhome = $ENV{JAVA_HOME};
@@ -9,17 +9,17 @@ if ($jhome)
 	my $lib = "$jhome/lib";
 	print "Cool - your JAVA_HOME environment variable is set to $jhome.\n";
 	print "If you let me copy it into $lib it'll be easier to run.\n";
-	print "Do I have permission to copy 'Java.jar' to $lib? (Y/n)? ";
+	print "Do I have permission to copy 'JavaServer.jar' to $lib? (Y/n)? ";
 	my $in = <STDIN>;
 	if ($in !~ /^n/i)
 	{
 		if ($OS =~ /windows/i)
 		{
-			system("copy Java.jar $lib");
+			system("copy JavaServer.jar $lib");
 		}
 		else
 		{
-			system("/bin/cp Java.jar $lib");
+			system("/bin/cp JavaServer.jar $lib");
 		}
 		$jar = $lib;
 	}
@@ -28,7 +28,7 @@ if ($jhome)
 		$jar = ".";
 	}
 
-		$line = "java -classpath $lib/classes.zip:$lib/swingall.jar:$lib/swing.jar:$jar/Java.jar JavaServer";
+		$line = "java -classpath $lib/classes.zip:$lib/swingall.jar:$lib/swing.jar:$jar/JavaServer.jar JavaServer";
 
 	if ($OS =~ /windows/i)
 	{
@@ -55,7 +55,7 @@ else
 	my $cp = $ENV{CLASSPATH};
 	if ($cp)
 	{
-		print "Add the directory where 'Java.jar' will sit to your\n";
+		print "Add the directory where 'JavaServer.jar' will sit to your\n";
 		print "CLASSPATH environment variable and then type:\n";
 		print "java JavaServer\n";
 		print "to run JavaServer.\n";
@@ -66,8 +66,8 @@ else
 		print "well as 'swing.jar' and 'swingall.jar' if you want to\n";
 		print "use Swing, and manually list all of those files including\n";
 		print "the directories they're in on the 'java' command line like -\n";
-		print "As well as putting Java.jar someplace and then execute:\n";
-		print "/path/to/java -classpath /path/to/classes.zip:/path/to/swing.jar:/path/to/swingall/jar:/path/to/Java.jar JavaServer\n";
+		print "As well as putting JavaServer.jar someplace and then execute:\n";
+		print "/path/to/java -classpath /path/to/classes.zip:/path/to/swing.jar:/path/to/swingall/jar:/path/to/JavaServer.jar JavaServer\n";
 		print "to run JavaServer.\n";
 	}
 }

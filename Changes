@@ -54,4 +54,24 @@ Java stuff got updated to 2.1 - Perl stuff still at 2.0
                 }
         - Fixed stupid bug about the MANIFEST file looking for Java.jar
                 when it's really called JavaServer.jar
-                
+
+Perl stuff up to 2.1 - Java stuff the same
+	2/22/01
+	- Fixed bug in 'static_call' so it now uses PARAMETER_SEPARATOR
+		(thanks to David Roth)
+	- Fixed bugs in java_server_install.pl to correctly reference 
+		'JavaServer.jar' & not 'Java.jar'
+		(thanks to Slavan Rezic & David Roth)
+Perl stuff up to 2.2 - Java stuff the same
+	3/9/01
+	- Overloaded '==' to be the same as the 'same' function.
+		So instead of having to do:
+			if ($obj1.same($obj2))
+		You can now do:
+			if ($obj1 == $obj2)
+		Check out the perldoc.
+	- Added JavaArray tied interface for Java arrays!
+		See 'perldoc Java' for all the glorious details!
+		It's very cool!  See 'array.pl' in 'examples' directory
+		for example usage.
+	- Some other random bug fixes for the install stuff

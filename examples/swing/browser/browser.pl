@@ -90,8 +90,8 @@ $frame->getContentPane->add($top_panel,"North");
 $frame->getContentPane->add($scroll_pane,"Center");
 
 $frame->setSize(900,900);
-$frame->setVisible("true:b");
 $frame->show;
+$frame->setVisible("true:b");
 
 # This is my exciting event loop!
  my $cont = 1;
@@ -157,6 +157,7 @@ sub back_button
 	if ($page)
 	{
 		$current_page = $page;
+		$current_page = "http://".$current_page if ($current_page !~ /^http/i);
 		$loc_field->setText($current_page);
 		$main_panel->setPage($current_page);
 	}
@@ -166,7 +167,7 @@ sub back_button
 
 sub reload_button
 {
-	# They wanna go back...
+	# They wanna go reload...
 	my($obj,$event) = @_;
 
 	$main_panel->setPage($current_page);
