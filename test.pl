@@ -10,10 +10,12 @@ my $ok = 0;
 BEGIN { $| = 1; print "1..33\n"; }
 END {print "not ok $ok - is JavaServer on localhost running?\nHave you ran 'java_server_install.pl' yet?\nJavaServer must be running for these tests to function.\n" unless $loaded;}
 
+BEGIN {
 print "WARNING: You cannot run these tests unless JavaServer is running!\n";
 print "Do you want to continue? (Y/n) ";
 my $in = <STDIN>;
-exit 1 if ($in !~ /^n/i);
+exit 1 if ($in =~ /^n/i);
+}
 use Java;
 my $java = new Java();
 $loaded = 1;
