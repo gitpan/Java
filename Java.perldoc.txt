@@ -687,7 +687,7 @@ SEE ALSO
     you can get yer hands on! http://www.zzo.com/Java/getit.html
 
 COPYRIGHT
-    Copyright (c) 2000, 2001, Mark Ethan Trostler
+    Copyright (c) 2000-2003 Mark Ethan Trostler
 
     All Rights Reserved. This module is free software. It may be
     used, redistributed and/or modified under the terms of the Perl

@@ -67,9 +67,9 @@ $ok++;
 print "ok $ok\n";
 
 print "Cycle thru array values.\n";
-for (my $i = 0; $i < $@{$constructor_array}; $i++)
+for (my $i = 0; $i < $#{$constructor_array}; $i++)
 {
-	my $cons = $constructor_array->get_field($i);
+	my $cons = $constructor_array->[$i];
 	my $val = $cons->get_value();
 	print "Constructor $i: $val\n";
 }

@@ -1,6 +1,9 @@
-# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.14 2002/09/03 17:26:43 mark Exp $
-# $Revision: 1.14 $
+# $Header: /usr/local/cvs/JavaServer/perl/Java.pm,v 1.15 2003/04/14 22:50:51 mark Exp $
+# $Revision: 1.15 $
 # $Log: Java.pm,v $
+# Revision 1.15  2003/04/14 22:50:51  mark
+# allow negative integers, test fix
+#
 # Revision 1.14  2002/09/03 17:26:43  mark
 # bump version #
 #
@@ -81,7 +84,7 @@ use vars qw ($AUTOLOAD @ISA $VERSION);
 require Exporter;
 @ISA = qw(Exporter);
 
-$VERSION = '4.3';
+$VERSION = '4.4';
 
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
@@ -484,7 +487,7 @@ sub pretty_args
 			# Wanna pass 'null' in
 			$_ = NULL_TOKEN;
 		}
-		elsif (/^\d+$/)
+		elsif (/^-?\d+$/)
 		{
 			# If it looks like an INT it is an int...
 			$_ .= ":int";
@@ -1511,7 +1514,7 @@ http://www.zzo.com/Java/getit.html
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000, 2001, Mark Ethan Trostler
+Copyright (c) 2000-2003 Mark Ethan Trostler
 
 All Rights Reserved. This module is free software.  It may be used, redistributed and/or modified under the terms of the Perl Artistic License. 
 

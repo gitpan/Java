@@ -1,5 +1,5 @@
 #
-# $Id: JavaArray.pm,v 1.2 2001/07/09 23:06:28 mark Exp $
+# $Id: JavaArray.pm,v 1.3 2003/04/14 22:50:51 mark Exp $
 #
 
 package JavaArray;
@@ -98,7 +98,7 @@ JavaArray - Tie'd extension for Java arrays from Java.pm
 
   // NO OTHER ARRAY OPERATIONS ARE AVAILABLE!
   //    so no pop or push or unshift or shift or splice
-  //    Hey event this can't make Java arrays cool!
+  //    Hey even this can't make Java arrays cool!
   //    use the Collections framework!
 
 =head1 DESCRIPTION
