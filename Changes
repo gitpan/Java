@@ -8,3 +8,8 @@ Revision history for Perl extension Java.
 	 - Allow Strings to be created using encodings for Localization
 		w/':string_<ENCODING>' syntax
 	 - Allow integers to be strings w/':string' syntax
+1.12
+	- Refined string encoding stuff
+1.13
+	- Added 'static_call' function to make static method calls on
+		classes NOT in packages.

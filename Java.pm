@@ -250,6 +250,7 @@ sub send_line
 {
 	my($self,$line) = @_;
 	return if (!$self || !$line);
+#print STDERR "SENDING -$line-\n";
 	$self->get_socket->print("$line\n");
 }
 	
@@ -368,6 +369,44 @@ sub pretty_args
 	@_;
 }
 
+sub get_chars_from_dec
+{
+	# Makes 2-byte hex ints...
+	unpack("H*",pack("n",shift));
+}
+
+sub create_raw_string
+{
+	# This is dicey!!!
+
+	my($self,$encoding,$string) = @_;
+
+	my @all_bytes;
+	my @chars = split //, $string;
+	foreach (@chars)
+	{
+		# Makes integers outta chars...
+		push @all_bytes, unpack("C",$_);
+	}
+
+	## @all_bytes is now an array of integer bytes values representing
+	#	the unicode string
+	##
+
+	my $len = @all_bytes;
+	my $line = "BYTE java.lang.String $encoding $len";
+	$self->send_line($line);
+
+	# Wait for response
+	my $resp = $self->get_socket->getline;
+	#print STDERR "got back $resp \n";
+
+	# Send bytes
+	local($") = " ";
+	$resp = $self->send_command_and_get_response("@all_bytes");
+	$self->new_java_object($resp);
+}
+
 sub do_event
 {
 	my($self,$object,$func,$callback) = @_;
@@ -446,6 +485,23 @@ sub AUTOLOAD
 	# Make args java-friendly
 	@args = pretty_args(@args);
 		
+	my $resp=$self->send_command_and_get_response("CAL $obj%$func(@args)");
+	return $self->new_java_object($resp);
+}
+
+#
+# Make a static function call if yer object ain't in a package...
+#
+# Called like 
+# $java->static_call("MyStaticClass","function_name","param1","param2"....);
+#
+sub static_call
+{
+	my($self,$obj,$func,@args) = @_;
+
+	# Make args java-friendly
+	@args = pretty_args(@args);
+
 	my $resp=$self->send_command_and_get_response("CAL $obj%$func(@args)");
 	return $self->new_java_object($resp);
 }
@@ -688,6 +744,11 @@ Note you use the '$java' object returned from the call to 'new Java'
 to access static methods - the static object must be fully-qualified
 separated by '_'s instead of '.'s.  And finally the first parameter
 is the name of the static function followed by any parameters to it.
+
+If your static class is NOT in a package you MUST use the 'static_call'
+function like:
+
+	my $return_value = $java->static_call("MyStaticClass","<function_name>",@params);
 
 =head2 Getting and Setting java object fields
 
@@ -987,6 +1048,6 @@ Mark Ethan Trostler, mark@zzo.com
 perl(1).
 http://www.javasoft.com/.
 Any sorta Java documentation you can get yer hands on!
-http://www.zzo.com/javaperl/
+http://www.zzo.com/Java/getit.html
 
 =cut
